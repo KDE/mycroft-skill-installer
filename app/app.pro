@@ -13,5 +13,8 @@ HEADERS += \
 
 
 target.path += /usr/bin/
-INSTALLS += target
+desktop.path += /usr/share/applications/
+desktop.files += net.bs.mycroft.installer.desktop
+
+INSTALLS += target desktop
 
