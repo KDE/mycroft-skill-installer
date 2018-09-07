@@ -119,21 +119,21 @@ Kirigami.ApplicationWindow {
                         anchors.right: btnRect.left
                         anchors.margins: 12
                         text: modelData.name
-                        font.pixelSize: 14
+                        font.pointSize: 10
                         color: Kirigami.Theme.textColor
                     }
                     Rectangle {
                         id: btnRect
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
-                        width: Kirigami.Units.gridUnit * 4
+                        width: Kirigami.Units.gridUnit * 4.5
                         height: Kirigami.Units.gridUnit * 4
                         color: "#222"
 
                         Label {
                             anchors.centerIn: parent
                             text: "Install"
-                            font.pixelSize: 14
+                            font.pointSize: 10
                             color: Kirigami.Theme.textColor
                         }
 
