@@ -119,6 +119,7 @@ Kirigami.ApplicationWindow {
                         anchors.right: btnRect.left
                         anchors.margins: 12
                         text: modelData.name
+                        font.pixelSize: 14
                         color: Kirigami.Theme.textColor
                     }
                     Rectangle {
@@ -132,6 +133,7 @@ Kirigami.ApplicationWindow {
                         Label {
                             anchors.centerIn: parent
                             text: "Install"
+                            font.pixelSize: 14
                             color: Kirigami.Theme.textColor
                         }
 
@@ -171,9 +173,9 @@ Kirigami.ApplicationWindow {
                    anchors.bottom: parent.bottom
                    anchors.left: parent.left
                    anchors.right: parent.right
-                   anchors.margins: 12
+                   anchors.margins: 8
                    font.family: "Monospace"
-                   font.pointSize: 12
+                   font.pointSize: 8
                    colorScheme: "cool-retro-term"
                    session: QMLTermSession{
                        id: mainsession
