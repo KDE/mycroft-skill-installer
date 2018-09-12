@@ -4,12 +4,14 @@ TARGET = MycroftSkillInstaller
 DESTDIR = $$OUT_PWD/../
 
 SOURCES += main.cpp \
-    scriptlauncher.cpp
+    scriptlauncher.cpp \
+    filereader.cpp
 
 RESOURCES += qml/resources.qrc
 
 HEADERS += \
-    scriptlauncher.h
+    scriptlauncher.h \
+    filereader.h
 
 
 target.path += /usr/bin/
@@ -17,4 +19,3 @@ desktop.path += /usr/share/applications/
 desktop.files += net.bs.mycroft.installer.desktop
 
 INSTALLS += target desktop
-
