@@ -6,6 +6,7 @@ import Qt.WebSockets 1.0
 import org.kde.kirigami 2.2 as Kirigami
 import QtGraphicalEffects 1.0
 import QMLTermWidget 1.0
+import FileReader 1.0
 
 Kirigami.ApplicationWindow {
     id: window
@@ -14,6 +15,8 @@ Kirigami.ApplicationWindow {
     property string currentPos
     property var currentURL
     property var orignalFolder
+    property var skillFolderName
+    property bool hasOrginal
 
     header: Rectangle {
         id: headerRect
@@ -39,24 +42,42 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        getSkills()
+        getSkillStatus()
     }
 
-    function getSkills(){
+    FileReader {
+        id: fileReader
+    }
+
+    ListModel {
+        id: skillCheckModel
+    }
+
+    function getSkillStatus(){
         var doc = new XMLHttpRequest()
         doc.open("GET", "https://raw.githubusercontent.com/AIIX/gui-skills/master/skills.json", true);
         doc.send();
 
         doc.onreadystatechange = function() {
             if (doc.readyState === XMLHttpRequest.DONE) {
-                var path, list;
+                skillCheckModel.clear()
                 var tempRes = doc.responseText
-                var skillmodel = JSON.parse(tempRes)
-                listView.model = skillmodel.skills
+                var checkModel = JSON.parse(tempRes)
+                var skillsCount = checkModel.skills.length;
+                for (var i=0; i < skillsCount; i++){
+                 var defaultFold = '/opt/mycroft/skills'
+                 var skillPath = defaultFold + "/" + checkModel.skills[i].skillname + "." + checkModel.skills[i].authorname
+                    if(fileReader.file_exists_local(skillPath)){
+                            skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true})
+                    }
+                    else {
+                            skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false})
+                    }
+                }
             }
         }
     }
-
+    
     function cleanInstaller(){
         mainsession.hasFinished = false
         currentPos = ""
@@ -97,6 +118,47 @@ Kirigami.ApplicationWindow {
         currentPos = "installerFinished"
     }
 
+
+    function cleanRemover(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var cleaninstallerfiles = ["-c", "rm -rf /tmp/remover.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(cleaninstallerfiles)
+        mainsession.startShellProgram();
+        currentPos = "cleanRemoverCompleted"
+    }
+
+    function getRemovers(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/remover.sh -P /tmp"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "removerDownloaded"
+    }
+
+    function setPermissionRemover(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "chmod a+x /tmp/remover.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "permissionSetRemover"
+    }
+
+    function runRemover(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "/tmp/remover.sh" + ' ' + orignalFolder]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "installerFinished"
+    }
+
     Kirigami.ScrollablePage{
         id: mainPageComponent
         title: "Mycroft Skill Installer"
@@ -106,6 +168,8 @@ Kirigami.ApplicationWindow {
             Layout.fillHeight: true
             Layout.fillWidth: true
             spacing:  5
+            model: skillCheckModel
+
             delegate: Rectangle {
                 width: window.width
                 height: Kirigami.Units.gridUnit * 4
@@ -118,7 +182,7 @@ Kirigami.ApplicationWindow {
                         anchors.left: parent.left
                         anchors.right: btnRect.left
                         anchors.margins: 12
-                        text: modelData.name
+                        text: model.displayName
                         font.pointSize: 10
                         color: Kirigami.Theme.textColor
                     }
@@ -131,19 +195,40 @@ Kirigami.ApplicationWindow {
                         color: "#222"
 
                         Label {
+                            id: installRemoveBtn
                             anchors.centerIn: parent
-                            text: "Install"
                             font.pointSize: 10
+                            text: model.skillInstalled ? "Remove" : "Install"
                             color: Kirigami.Theme.textColor
+
+                            Component.onCompleted:  {
+                                console.log(model.skillInstalled)
+                            }
                         }
 
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                currentURL = modelData.url
-                                orignalFolder = modelData.foldername
+                                if(model.folderName !== ""){
+                                    hasOrginal = true
+                                    skillFolderName = model.folderName
+                                    console.log(skillFolderName)
+                                }
+                                else{
+                                    hasOrginal = false
+                                    skillFolderName = model.skillName + "." + model.authorName
+                                    console.log(skillFolderName)
+                                }
+                                currentURL = model.skillUrl
+                                orignalFolder = model.folderName
                                 mainInstallerDrawer.open()
-                                cleanInstaller()
+
+                                if(!model.skillInstalled){
+                                   cleanInstaller()
+                                }
+                                else{
+                                   cleanRemover()
+                                }
                             }
                         }
                     }
@@ -190,6 +275,7 @@ Kirigami.ApplicationWindow {
                        onFinished: {
                            console.log("finished")
                                switch(currentPos){
+                               //InstallerLogic
                                case "cleanInstallerCompleted":
                                    hasFinished = true;
                                    getInstallers()
@@ -205,6 +291,22 @@ Kirigami.ApplicationWindow {
                               case "installerFinished":
                                   hasFinished = true
                                   //mainInstallerDrawer.close();
+                                  break;
+                              //RemoverLogic
+                              case "cleanRemoverCompleted":
+                                  hasFinished = true
+                                  getRemovers()
+                                  break;
+                              case "removerDownloaded":
+                                  hasFinished = true
+                                  setPermissionRemover()
+                                  break;
+                              case "permissionSetRemover":
+                                  hasFinished = true
+                                  runRemover()
+                                  break;
+                              case "removerFinished":
+                                  hasFinished = true
                                   break;
                             }
                        }

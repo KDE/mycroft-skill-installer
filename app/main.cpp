@@ -5,6 +5,7 @@
 #include <QIcon>
 #include <QStringList>
 #include "scriptlauncher.h"
+#include "filereader.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +14,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon("qrc:mycroft-plasma-appicon.png"));
     QQuickStyle::setStyle("Material");
     qmlRegisterType<ScriptLauncher>("MycroftLauncher", 1, 0, "ScriptLauncher");
+    qmlRegisterType<FileReader>("FileReader", 1, 0, "FileReader");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QLatin1String("qrc:main.qml")));
