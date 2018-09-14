@@ -2,7 +2,6 @@ import QtQuick 2.9
 import QtQml.Models 2.3
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
-import Qt.WebSockets 1.0
 import org.kde.kirigami 2.2 as Kirigami
 import QtGraphicalEffects 1.0
 import QMLTermWidget 1.0
@@ -290,6 +289,7 @@ Kirigami.ApplicationWindow {
                                    break;
                               case "installerFinished":
                                   hasFinished = true
+                                  getSkillStatus()
                                   //mainInstallerDrawer.close();
                                   break;
                               //RemoverLogic
@@ -307,6 +307,7 @@ Kirigami.ApplicationWindow {
                                   break;
                               case "removerFinished":
                                   hasFinished = true
+                                  getSkillStatus()
                                   break;
                             }
                        }
