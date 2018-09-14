@@ -152,7 +152,7 @@ Kirigami.ApplicationWindow {
     function runRemover(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "/tmp/remover.sh" + ' ' + orignalFolder]
+        var getinstallersarg = ["-c", "/tmp/remover.sh" + ' ' + orignalFolder + ' ' + skillFolderName]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
