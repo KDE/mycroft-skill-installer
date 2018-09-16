@@ -4,13 +4,11 @@ TARGET = MycroftSkillInstaller
 DESTDIR = $$OUT_PWD/../
 
 SOURCES += main.cpp \
-    scriptlauncher.cpp \
     filereader.cpp
 
 RESOURCES += qml/resources.qrc
 
 HEADERS += \
-    scriptlauncher.h \
     filereader.h
 
 

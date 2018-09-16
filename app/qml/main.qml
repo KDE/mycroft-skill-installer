@@ -1,8 +1,8 @@
 import QtQuick 2.9
 import QtQml.Models 2.3
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
-import org.kde.kirigami 2.2 as Kirigami
+import org.kde.kirigami 2.4 as Kirigami
 import QtGraphicalEffects 1.0
 import QMLTermWidget 1.0
 import FileReader 1.0
@@ -16,6 +16,13 @@ Kirigami.ApplicationWindow {
     property var orignalFolder
     property var skillFolderName
     property bool hasOrginal
+
+    function delay(delayTime, cb) {
+        delayTimer.interval = delayTime;
+        delayTimer.repeat = false;
+        delayTimer.triggered.connect(cb);
+        delayTimer.start();
+    }
 
     header: Rectangle {
         id: headerRect
@@ -40,12 +47,51 @@ Kirigami.ApplicationWindow {
         }
     }
 
+    footer: Item {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: Kirigami.Units.gridUnit * 2.4
+
+        Kirigami.Separator {
+            id: footerSeparator
+            anchors.left: parent.left
+            anchors.right: parent.right
+        }
+
+        Rectangle {
+            anchors.top: footerSeparator.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            color: "#211e1e"
+
+            Button {
+                id: refreshButton
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.margins: Kirigami.Units.smallSpacing
+                text: "Refresh"
+                onClicked: {
+                    skillCheckModel.clear()
+                    getSkillStatus()
+                    refreshButton.focus = false
+                }
+            }
+        }
+    }
+
     Component.onCompleted: {
         getSkillStatus()
     }
 
     FileReader {
         id: fileReader
+    }
+
+    Timer {
+        id: delayTimer
     }
 
     ListModel {
@@ -64,13 +110,13 @@ Kirigami.ApplicationWindow {
                 var checkModel = JSON.parse(tempRes)
                 var skillsCount = checkModel.skills.length;
                 for (var i=0; i < skillsCount; i++){
-                 var defaultFold = '/opt/mycroft/skills'
-                 var skillPath = defaultFold + "/" + checkModel.skills[i].skillname + "." + checkModel.skills[i].authorname
+                    var defaultFold = '/opt/mycroft/skills'
+                    var skillPath = defaultFold + "/" + checkModel.skills[i].skillname + "." + checkModel.skills[i].authorname
                     if(fileReader.file_exists_local(skillPath)){
-                            skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true})
+                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true})
                     }
                     else {
-                            skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false})
+                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false})
                     }
                 }
             }
@@ -155,28 +201,27 @@ Kirigami.ApplicationWindow {
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
-        currentPos = "installerFinished"
+        currentPos = "removerFinished"
     }
 
     Kirigami.ScrollablePage{
         id: mainPageComponent
         title: "Mycroft Skill Installer"
 
-        ListView {
+        Kirigami.CardsListView {
             id: listView
             Layout.fillHeight: true
             Layout.fillWidth: true
             spacing:  5
             model: skillCheckModel
 
-            delegate: Rectangle {
-                width: window.width
-                height: Kirigami.Units.gridUnit * 4
-                color: Kirigami.Theme.backgroundColor
+            delegate: Kirigami.AbstractCard {
+                contentItem: Item {
+                    implicitWidth: parent.width
+                    implicitHeight: skillNameLabel.height
 
-                Item {
-                    anchors.fill: parent
                     Label{
+                        id: skillNameLabel
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.right: btnRect.left
@@ -185,51 +230,37 @@ Kirigami.ApplicationWindow {
                         font.pointSize: 10
                         color: Kirigami.Theme.textColor
                     }
-                    Rectangle {
+
+                    Button {
                         id: btnRect
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         width: Kirigami.Units.gridUnit * 4.5
-                        height: Kirigami.Units.gridUnit * 4
-                        color: "#222"
+                        height: Kirigami.Units.gridUnit * 2
+                        text: model.skillInstalled ? "Remove" : "Install"
+                        onClicked: {
+                            if(model.folderName !== ""){
+                                hasOrginal = true
+                                skillFolderName = model.folderName
+                                console.log(skillFolderName)
+                            }
+                            else{
+                                hasOrginal = false
+                                skillFolderName = model.skillName + "." + model.authorName
+                                console.log(skillFolderName)
+                            }
+                            currentURL = model.skillUrl
+                            orignalFolder = model.folderName
+                            mainInstallerDrawer.open()
 
-                        Label {
-                            id: installRemoveBtn
-                            anchors.centerIn: parent
-                            font.pointSize: 10
-                            text: model.skillInstalled ? "Remove" : "Install"
-                            color: Kirigami.Theme.textColor
-
-                            Component.onCompleted:  {
-                                console.log(model.skillInstalled)
+                            if(!model.skillInstalled){
+                                cleanInstaller()
+                            }
+                            else{
+                                cleanRemover()
                             }
                         }
 
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked: {
-                                if(model.folderName !== ""){
-                                    hasOrginal = true
-                                    skillFolderName = model.folderName
-                                    console.log(skillFolderName)
-                                }
-                                else{
-                                    hasOrginal = false
-                                    skillFolderName = model.skillName + "." + model.authorName
-                                    console.log(skillFolderName)
-                                }
-                                currentURL = model.skillUrl
-                                orignalFolder = model.folderName
-                                mainInstallerDrawer.open()
-
-                                if(!model.skillInstalled){
-                                   cleanInstaller()
-                                }
-                                else{
-                                   cleanRemover()
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -237,97 +268,99 @@ Kirigami.ApplicationWindow {
                 listView.update()
             }
         }
-
-        Drawer{
-           id: mainInstallerDrawer
-           edge: Qt.BottomEdge
-           width: window.width
-           height: window.height / 2
-           dragMargin: 0
-           interactive: true
-           dim: false
-
-           Rectangle {
-               anchors.fill: parent
-               color: Kirigami.Theme.backgroundColor
-
-               QMLTermWidget {
-                   id: terminal
-                   anchors.top: parent.top
-                   anchors.bottom: parent.bottom
-                   anchors.left: parent.left
-                   anchors.right: parent.right
-                   anchors.margins: 8
-                   font.family: "Monospace"
-                   font.pointSize: 8
-                   colorScheme: "cool-retro-term"
-                   session: QMLTermSession{
-                       id: mainsession
-                       property bool hasFinished: false
-                       initialWorkingDirectory: "$HOME"
-                       onMatchFound: {
-                           console.log("found at: %1 %2 %3 %4".arg(startColumn).arg(startLine).arg(endColumn).arg(endLine));
-                        }
-                        onNoMatchFound: {
-                           console.log("not found");
-                       }
-                       onFinished: {
-                           console.log("finished")
-                               switch(currentPos){
-                               //InstallerLogic
-                               case "cleanInstallerCompleted":
-                                   hasFinished = true;
-                                   getInstallers()
-                                   break;
-                               case "installerDownloaded":
-                                   hasFinished = true;
-                                   setPermission()
-                                   break;
-                               case "permissionSet":
-                                   hasFinished = true;
-                                   runInstallers()
-                                   break;
-                              case "installerFinished":
-                                  hasFinished = true
-                                  getSkillStatus()
-                                  //mainInstallerDrawer.close();
-                                  break;
-                              //RemoverLogic
-                              case "cleanRemoverCompleted":
-                                  hasFinished = true
-                                  getRemovers()
-                                  break;
-                              case "removerDownloaded":
-                                  hasFinished = true
-                                  setPermissionRemover()
-                                  break;
-                              case "permissionSetRemover":
-                                  hasFinished = true
-                                  runRemover()
-                                  break;
-                              case "removerFinished":
-                                  hasFinished = true
-                                  getSkillStatus()
-                                  break;
-                            }
-                       }
-                   }
-                   //onTerminalUsesMouseChanged: console.log(terminalUsesMouse);
-                   //onTerminalSizeChanged: console.log(terminalSize);
-                   Component.onCompleted: {}
-
-                   QMLTermScrollbar {
-                       terminal: terminal
-                       width: 20
-                       Rectangle {
-                           opacity: 0.4
-                           anchors.margins: 5
-                           radius: width * 0.5
-                           anchors.fill: parent
-                       }
-                   }
-                }
-             }
-          }
-       }
     }
+
+    Drawer{
+        id: mainInstallerDrawer
+        edge: Qt.BottomEdge
+        width: window.width
+        height: window.height / 2
+        dragMargin: 0
+        interactive: true
+        dim: false
+
+        Rectangle {
+            anchors.fill: parent
+            color: Kirigami.Theme.backgroundColor
+
+            QMLTermWidget {
+                id: terminal
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 8
+                font.family: "Monospace"
+                font.pointSize: 8
+                colorScheme: "cool-retro-term"
+                session: QMLTermSession{
+                    id: mainsession
+                    property bool hasFinished: false
+                    initialWorkingDirectory: "$HOME"
+                    onMatchFound: {
+                        console.log("found at: %1 %2 %3 %4".arg(startColumn).arg(startLine).arg(endColumn).arg(endLine));
+                    }
+                    onNoMatchFound: {
+                        console.log("not found");
+                    }
+                    onFinished: {
+                        console.log("finished")
+                        switch(currentPos){
+                            //InstallerLogic
+                        case "cleanInstallerCompleted":
+                            hasFinished = true;
+                            getInstallers()
+                            break;
+                        case "installerDownloaded":
+                            hasFinished = true;
+                            setPermission()
+                            break;
+                        case "permissionSet":
+                            hasFinished = true;
+                            runInstallers()
+                            break;
+                        case "installerFinished":
+                            hasFinished = true
+                            getSkillStatus()
+                            delay(3000, function() {
+                                mainInstallerDrawer.close()
+                            })
+                            break;
+                            //RemoverLogic
+                        case "cleanRemoverCompleted":
+                            hasFinished = true
+                            getRemovers()
+                            break;
+                        case "removerDownloaded":
+                            hasFinished = true
+                            setPermissionRemover()
+                            break;
+                        case "permissionSetRemover":
+                            hasFinished = true
+                            runRemover()
+                            break;
+                        case "removerFinished":
+                            hasFinished = true
+                            getSkillStatus()
+                            delay(3000, function() {
+                                mainInstallerDrawer.close()
+                            })
+                            break;
+                        }
+                    }
+                }
+
+                QMLTermScrollbar {
+                    terminal: terminal
+                    width: 20
+                    Rectangle {
+                        opacity: 0.4
+                        anchors.margins: 5
+                        radius: width * 0.5
+                        anchors.fill: parent
+                    }
+                }
+            }
+        }
+    }
+}
