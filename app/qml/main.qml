@@ -65,18 +65,20 @@ Kirigami.ApplicationWindow {
             anchors.bottom: parent.bottom
             color: "#211e1e"
 
-            Button {
-                id: refreshButton
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.margins: Kirigami.Units.smallSpacing
-                text: "Refresh"
-                onClicked: {
-                    skillCheckModel.clear()
-                    getSkillStatus()
-                    refreshButton.focus = false
+            RowLayout{
+                anchors.fill: parent
+
+                Button {
+                    id: refreshButton
+                    Layout.preferredWidth: parent.width
+                    Layout.fillHeight: true
+                    anchors.margins: Kirigami.Units.smallSpacing
+                    text: "Refresh"
+                    onClicked: {
+                        skillCheckModel.clear()
+                        getSkillStatus()
+                        refreshButton.focus = false
+                    }
                 }
             }
         }
@@ -100,7 +102,7 @@ Kirigami.ApplicationWindow {
 
     function getSkillStatus(){
         var doc = new XMLHttpRequest()
-        doc.open("GET", "https://raw.githubusercontent.com/AIIX/gui-skills/master/skills.json", true);
+        doc.open("GET", "https://raw.githubusercontent.com/AIIX/gui-skills/master/skillsNewApi.json", true);
         doc.send();
 
         doc.onreadystatechange = function() {
@@ -136,7 +138,7 @@ Kirigami.ApplicationWindow {
     function getInstallers(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/skiller.sh -P /tmp"]
+        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/newskiller.sh -P /tmp"]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
@@ -146,7 +148,7 @@ Kirigami.ApplicationWindow {
     function setPermission(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "chmod a+x /tmp/skiller.sh"]
+        var getinstallersarg = ["-c", "chmod a+x /tmp/newskiller.sh"]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
@@ -156,7 +158,7 @@ Kirigami.ApplicationWindow {
     function runInstallers(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "/tmp/skiller.sh" + ' ' + currentURL + ' ' + orignalFolder]
+        var getinstallersarg = ["-c", "/tmp/newskiller.sh" + ' ' + currentURL + ' ' + orignalFolder]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
@@ -322,7 +324,7 @@ Kirigami.ApplicationWindow {
                         case "installerFinished":
                             hasFinished = true
                             getSkillStatus()
-                            delay(3000, function() {
+                            delay(4000, function() {
                                 mainInstallerDrawer.close()
                             })
                             break;
@@ -342,7 +344,7 @@ Kirigami.ApplicationWindow {
                         case "removerFinished":
                             hasFinished = true
                             getSkillStatus()
-                            delay(3000, function() {
+                            delay(4000, function() {
                                 mainInstallerDrawer.close()
                             })
                             break;
