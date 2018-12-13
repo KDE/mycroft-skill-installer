@@ -1,7 +1,0 @@
-[Desktop Entry]
-Exec=MycroftSkillInstaller
-Icon=kmenuedit
-Type=Application
-StartupNotify=true
-
-Name=Mycroft Skill installer
