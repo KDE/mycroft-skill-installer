@@ -10,11 +10,14 @@ import FileReader 1.0
 Kirigami.ApplicationWindow {
     id: window
     visible: true
+    // @disable-check M17
     pageStack.initialPage: mainPageComponent
     property string currentPos
     property var currentURL
     property var orignalFolder
     property var skillFolderName
+    property var skillFolder
+    property var branch
     property bool hasOrginal
 
     function delay(delayTime, cb) {
@@ -65,18 +68,20 @@ Kirigami.ApplicationWindow {
             anchors.bottom: parent.bottom
             color: "#211e1e"
 
-            Button {
-                id: refreshButton
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.margins: Kirigami.Units.smallSpacing
-                text: "Refresh"
-                onClicked: {
-                    skillCheckModel.clear()
-                    getSkillStatus()
-                    refreshButton.focus = false
+            RowLayout{
+                anchors.fill: parent
+
+                Button {
+                    id: refreshButton
+                    Layout.preferredWidth: parent.width
+                    Layout.fillHeight: true
+                    anchors.margins: Kirigami.Units.smallSpacing
+                    text: "Refresh"
+                    onClicked: {
+                        skillCheckModel.clear()
+                        getSkillStatus()
+                        refreshButton.focus = false
+                    }
                 }
             }
         }
@@ -100,7 +105,7 @@ Kirigami.ApplicationWindow {
 
     function getSkillStatus(){
         var doc = new XMLHttpRequest()
-        doc.open("GET", "https://raw.githubusercontent.com/AIIX/gui-skills/master/skills.json", true);
+        doc.open("GET", "https://raw.githubusercontent.com/AIIX/gui-skills/master/skillsNewApi.json", true);
         doc.send();
 
         doc.onreadystatechange = function() {
@@ -113,10 +118,10 @@ Kirigami.ApplicationWindow {
                     var defaultFold = '/opt/mycroft/skills'
                     var skillPath = defaultFold + "/" + checkModel.skills[i].skillname + "." + checkModel.skills[i].authorname
                     if(fileReader.file_exists_local(skillPath)){
-                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true})
+                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true, branch: checkModel.skills[i].branch, skillFolderPath: skillPath, warning: checkModel.skills[i].warning})
                     }
                     else {
-                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false})
+                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false, branch: checkModel.skills[i].branch, skillFolderPath: skillPath, warning: checkModel.skills[i].warning})
                     }
                 }
             }
@@ -126,7 +131,7 @@ Kirigami.ApplicationWindow {
     function cleanInstaller(){
         mainsession.hasFinished = false
         currentPos = ""
-        var cleaninstallerfiles = ["-c", "rm -rf /tmp/skiller.sh"]
+        var cleaninstallerfiles = ["-c", "rm -rf /tmp/newskiller.sh"]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(cleaninstallerfiles)
         mainsession.startShellProgram();
@@ -136,7 +141,7 @@ Kirigami.ApplicationWindow {
     function getInstallers(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/skiller.sh -P /tmp"]
+        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/newskiller.sh -P /tmp"]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
@@ -146,7 +151,7 @@ Kirigami.ApplicationWindow {
     function setPermission(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "chmod a+x /tmp/skiller.sh"]
+        var getinstallersarg = ["-c", "chmod a+x /tmp/newskiller.sh"]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
@@ -156,13 +161,52 @@ Kirigami.ApplicationWindow {
     function runInstallers(){
         mainsession.hasFinished = false
         currentPos = ""
-        var getinstallersarg = ["-c", "/tmp/skiller.sh" + ' ' + currentURL + ' ' + orignalFolder]
+        var getinstallersarg = ["-c", "/tmp/newskiller.sh" + ' ' + currentURL + ' ' + orignalFolder]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
         currentPos = "installerFinished"
     }
 
+    function cleanBranchInstaller(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var cleaninstallerfiles = ["-c", "rm -rf /tmp/brancher.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(cleaninstallerfiles)
+        mainsession.startShellProgram();
+        currentPos = "cleanBranchInstallerCompleted"
+    }
+
+    function getBranchInstaller(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/brancher.sh -P /tmp"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "branchInstallerDownloaded"
+    }
+
+    function setPermissionBranchInstaller(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "chmod a+x /tmp/brancher.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "branchPermissionSet"
+    }
+
+    function runBranchInstallers(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "/tmp/brancher.sh" + ' ' + skillFolder + ' ' + branch]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "branchInstallerFinished"
+    }
 
     function cleanRemover(){
         mainsession.hasFinished = false
@@ -220,47 +264,66 @@ Kirigami.ApplicationWindow {
                     implicitWidth: parent.width
                     implicitHeight: skillNameLabel.height
 
-                    Label{
-                        id: skillNameLabel
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.right: btnRect.left
-                        anchors.margins: 12
-                        text: model.displayName
-                        font.pointSize: 10
-                        color: Kirigami.Theme.textColor
-                    }
+                    RowLayout {
+                        anchors.fill:  parent
 
-                    Button {
-                        id: btnRect
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: Kirigami.Units.gridUnit * 4.5
-                        height: Kirigami.Units.gridUnit * 2
-                        text: model.skillInstalled ? "Remove" : "Install"
-                        onClicked: {
-                            if(model.folderName !== ""){
-                                hasOrginal = true
-                                skillFolderName = model.folderName
-                                console.log(skillFolderName)
-                            }
-                            else{
-                                hasOrginal = false
-                                skillFolderName = model.skillName + "." + model.authorName
-                                console.log(skillFolderName)
-                            }
-                            currentURL = model.skillUrl
-                            orignalFolder = model.folderName
-                            mainInstallerDrawer.open()
+                        ColumnLayout{
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignLeft
 
-                            if(!model.skillInstalled){
-                                cleanInstaller()
+                            Kirigami.Heading {
+                                id: skillNameLabel
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignTop
+                                text: model.displayName
+                                level: 3
+                                color: Kirigami.Theme.textColor
                             }
-                            else{
-                                cleanRemover()
+                            Label {
+                                id: skillWarningLabel
+                                text: "Note: " + model.warning
+                                color: Kirigami.Theme.linkColor
+                                visible: !model.warning ? false : true
                             }
                         }
 
+                        Label {
+                            id: skillBranchLabel
+                            text: "Branch: " + model.branch
+                            color: Kirigami.Theme.textColor
+                        }
+
+                        Button {
+                            id: btnRect
+                            Layout.preferredHeight: Kirigami.Units.gridUnit * 2
+                            Layout.preferredWidth: Kirigami.Units.gridUnit * 4.5
+                            Layout.alignment: Qt.AlignRight
+                            text: model.skillInstalled ? "Remove" : "Install"
+                            onClicked: {
+                                if(model.folderName !== ""){
+                                    hasOrginal = true
+                                    skillFolderName = model.folderName
+                                    console.log(skillFolderName)
+                                }
+                                else{
+                                    hasOrginal = false
+                                    skillFolderName = model.skillName + "." + model.authorName
+                                    console.log(skillFolderName)
+                                }
+                                currentURL = model.skillUrl
+                                orignalFolder = model.folderName
+                                branch = model.branch
+                                skillFolder = model.skillFolderPath
+                                mainInstallerDrawer.open()
+
+                                if(!model.skillInstalled){
+                                    cleanInstaller()
+                                }
+                                else{
+                                    cleanRemover()
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -283,6 +346,7 @@ Kirigami.ApplicationWindow {
             anchors.fill: parent
             color: Kirigami.Theme.backgroundColor
 
+            // @disable-check M300
             QMLTermWidget {
                 id: terminal
                 anchors.top: parent.top
@@ -293,6 +357,7 @@ Kirigami.ApplicationWindow {
                 font.family: "Monospace"
                 font.pointSize: 8
                 colorScheme: "cool-retro-term"
+                // @disable-check M300
                 session: QMLTermSession{
                     id: mainsession
                     property bool hasFinished: false
@@ -322,7 +387,24 @@ Kirigami.ApplicationWindow {
                         case "installerFinished":
                             hasFinished = true
                             getSkillStatus()
-                            delay(3000, function() {
+                            cleanBranchInstaller()
+                            break;
+                        case "cleanBranchInstallerCompleted":
+                            hasFinished = true
+                            getBranchInstaller()
+                            break;
+                        case "branchInstallerDownloaded":
+                            hasFinished = true
+                            setPermissionBranchInstaller()
+                            break;
+                        case "branchPermissionSet":
+                            hasFinished = true
+                            runBranchInstallers()
+                            break;
+                        case "branchInstallerFinished":
+                            hasFinished = true
+                            getSkillStatus()
+                            delay(4000, function() {
                                 mainInstallerDrawer.close()
                             })
                             break;
@@ -342,7 +424,7 @@ Kirigami.ApplicationWindow {
                         case "removerFinished":
                             hasFinished = true
                             getSkillStatus()
-                            delay(3000, function() {
+                            delay(4000, function() {
                                 mainInstallerDrawer.close()
                             })
                             break;
