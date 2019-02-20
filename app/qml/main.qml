@@ -201,6 +201,7 @@ Kirigami.ApplicationWindow {
     function runBranchInstallers(){
         mainsession.hasFinished = false
         currentPos = ""
+        console.log("branch:" + branch)
         var getinstallersarg = ["-c", "/tmp/brancher.sh" + ' ' + skillFolder + ' ' + branch]
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
@@ -300,6 +301,8 @@ Kirigami.ApplicationWindow {
                             Layout.alignment: Qt.AlignRight
                             text: model.skillInstalled ? "Remove" : "Install"
                             onClicked: {
+                                window.branch = model.branch
+                                console.log(branch)
                                 if(model.folderName !== ""){
                                     hasOrginal = true
                                     skillFolderName = model.folderName
@@ -312,7 +315,6 @@ Kirigami.ApplicationWindow {
                                 }
                                 currentURL = model.skillUrl
                                 orignalFolder = model.folderName
-                                branch = model.branch
                                 skillFolder = model.skillFolderPath
                                 mainInstallerDrawer.open()
 
@@ -405,7 +407,7 @@ Kirigami.ApplicationWindow {
                             hasFinished = true
                             getSkillStatus()
                             delay(4000, function() {
-                                mainInstallerDrawer.close()
+                                //mainInstallerDrawer.close()
                             })
                             break;
                             //RemoverLogic
@@ -425,7 +427,7 @@ Kirigami.ApplicationWindow {
                             hasFinished = true
                             getSkillStatus()
                             delay(4000, function() {
-                                mainInstallerDrawer.close()
+                                //mainInstallerDrawer.close()
                             })
                             break;
                         }
