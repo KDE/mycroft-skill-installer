@@ -19,6 +19,7 @@ Kirigami.ApplicationWindow {
     property var skillFolder
     property var branch
     property bool hasOrginal
+    property bool hasDesktopFile
 
     function delay(delayTime, cb) {
         delayTimer.interval = delayTime;
@@ -118,10 +119,10 @@ Kirigami.ApplicationWindow {
                     var defaultFold = '/opt/mycroft/skills'
                     var skillPath = defaultFold + "/" + checkModel.skills[i].skillname + "." + checkModel.skills[i].authorname
                     if(fileReader.file_exists_local(skillPath)){
-                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true, branch: checkModel.skills[i].branch, skillFolderPath: skillPath, warning: checkModel.skills[i].warning})
+                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: true, branch: checkModel.skills[i].branch, skillFolderPath: skillPath, warning: checkModel.skills[i].warning, desktopFile: checkModel.skills[i].desktopFile})
                     }
                     else {
-                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false, branch: checkModel.skills[i].branch, skillFolderPath: skillPath, warning: checkModel.skills[i].warning})
+                        skillCheckModel.append({displayName: checkModel.skills[i].name, skillName: checkModel.skills[i].skillname, authorName: checkModel.skills[i].authorname, folderName: checkModel.skills[i].foldername, skillUrl: checkModel.skills[i].url, skillInstalled: false, branch: checkModel.skills[i].branch, skillFolderPath: skillPath, warning: checkModel.skills[i].warning, desktopFile: checkModel.skills[i].desktopFile})
                     }
                 }
             }
@@ -206,7 +207,51 @@ Kirigami.ApplicationWindow {
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
-        currentPos = "branchInstallerFinished"
+        if(hasDesktopFile){
+            currentPos = "installDesktopFile"
+        } else {
+            currentPos = "branchInstallerFinished"
+        }
+    }
+
+    function cleanDesktopFileInstaller(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var cleaninstallerfiles = ["-c", "rm -rf /tmp/desktopFileInstaller.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(cleaninstallerfiles)
+        mainsession.startShellProgram();
+        currentPos = "cleanDesktopInstallerCompleted"
+    }
+
+    function getDesktopFileInstaller(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/desktopFileInstaller.sh -P /tmp"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "desktopFileInstallerDownloaded"
+    }
+
+    function setPermissionDesktopFileInstaller() {
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "chmod a+x /tmp/desktopFileInstaller.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "desktopFilePermissionSet"
+    }
+
+    function runDesktopFileInstallers(){
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "/tmp/desktopFileInstaller.sh" + ' ' + skillFolder]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "desktopFileInstallerFinished"
     }
 
     function cleanRemover(){
@@ -313,6 +358,11 @@ Kirigami.ApplicationWindow {
                                     skillFolderName = model.skillName + "." + model.authorName
                                     console.log(skillFolderName)
                                 }
+                                if(model.desktopFile){
+                                    hasDesktopFile = true
+                                } else {
+                                    hasDesktopFile = false
+                                }
                                 currentURL = model.skillUrl
                                 orignalFolder = model.folderName
                                 skillFolder = model.skillFolderPath
@@ -407,7 +457,30 @@ Kirigami.ApplicationWindow {
                             hasFinished = true
                             getSkillStatus()
                             delay(4000, function() {
-                                //mainInstallerDrawer.close()
+                                mainInstallerDrawer.close()
+                            })
+                            break;
+                        case "installDesktopFile":
+                            hasFinished = true
+                            cleanDesktopFileInstaller()
+                            break;
+                        case "cleanDesktopInstallerCompleted":
+                            hasFinished = true
+                            getDesktopFileInstaller()
+                            break;
+                        case "desktopFileInstallerDownloaded":
+                            hasFinished = true
+                            setPermissionDesktopFileInstaller()
+                            break;
+                        case "desktopFilePermissionSet":
+                            hasFinished = true
+                            runDesktopFileInstallers();
+                            break;
+                        case "desktopFileInstallerFinished":
+                            hasFinished = true
+                            getSkillStatus()
+                            delay(4000, function() {
+                                mainInstallerDrawer.close()
                             })
                             break;
                             //RemoverLogic
@@ -427,7 +500,7 @@ Kirigami.ApplicationWindow {
                             hasFinished = true
                             getSkillStatus()
                             delay(4000, function() {
-                                //mainInstallerDrawer.close()
+                                mainInstallerDrawer.close()
                             })
                             break;
                         }
