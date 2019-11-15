@@ -10,5 +10,9 @@
         <file>qml/Rnd.js</file>
         <file>qml/images/mycroft_ai_logo.png</file>
         <file>qml/images/mpl.png</file>
+        <file>qml/delegates/background.svg</file>
+        <file>qml/delegates/TileDelegate.qml</file>
+        <file>qml/views/TileView.qml</file>
+        <file>qml/delegates/ListDelegate.qml</file>
     </qresource>
 </RCC>
