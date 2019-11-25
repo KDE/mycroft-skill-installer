@@ -177,7 +177,7 @@ Kirigami.ApplicationWindow {
 
     function getSkills(){
         var xhr = new XMLHttpRequest()
-        var url = 'https://api.kde-look.org/ocs/v1/content/data?categories=415' ;
+        var url = 'https://api.kde-look.org/ocs/v1/content/data?categories=608' ;
         xhr.open("GET",url,true);
         xhr.setRequestHeader('Content-Type',  'application/xml');
         xhr.send();
