@@ -406,7 +406,7 @@ Kirigami.ApplicationWindow {
         title: "Mycroft Skills Installer"
 
         background: Rectangle {
-            color: Qt.rgba(0,0,0,0.5)
+            color: Qt.rgba(0,0,0,0.8)
         }
 
         XmlListModel {
@@ -423,8 +423,9 @@ Kirigami.ApplicationWindow {
         ColumnLayout {
             anchors.fill: parent
 
-            ComboBox {
+            PlasmaComponents3.ComboBox {
                 id: categorySelector
+		Layout.preferredWidth: Kirigami.Units.gridUnit * 15
                 displayText: "Category: " + currentText
                 model: [ "All Skills", "Configuration", "Entertainment", "Information", "Productivity" ]
                 leftPadding: Kirigami.Units.gridUnit
@@ -495,9 +496,9 @@ Kirigami.ApplicationWindow {
 
                             Keys.onReturnPressed: {
                                 console.log(currentIndex)
-                                categorySelector.currentIndex = currentIndex
+                                categorySelector.currentIndex = pCView.currentIndex
                                 categorySelector.popup.close()
-                                categorySelector.forceActiveFocus()
+                                lview.forceActiveFocus()
                             }
                         }
 

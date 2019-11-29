@@ -142,7 +142,7 @@ Controls.ItemDelegate {
             //Layout.maximumHeight: width
             //Layout.alignment: Qt.AlignTop
             width: parent.width
-            height: width - Kirigami.Units.gridUnit * 1.5
+            height: width - Kirigami.Units.gridUnit * 3.25
             anchors.top: label.bottom
             anchors.topMargin: Kirigami.Units.smallSpacing
             fillMode: Image.Stretch
