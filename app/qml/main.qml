@@ -4,6 +4,7 @@ import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
 import org.kde.kirigami 2.11 as Kirigami
 import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.components 3.0 as PlasmaComponents3
 import QtGraphicalEffects 1.0
 import QtQuick.XmlListModel 2.13
 import QMLTermWidget 1.0
@@ -28,6 +29,7 @@ Kirigami.ApplicationWindow {
     property bool hasDesktopFile
     property Component highlighter: PlasmaComponents.Highlight{}
     property Component emptyHighlighter: Item{}
+    property string categoryURL: "https://api.kde-look.org/ocs/v1/content/data?categories=608"
     property var jlist: []
     signal skillModelChanged
 
@@ -177,7 +179,7 @@ Kirigami.ApplicationWindow {
 
     function getSkills(){
         var xhr = new XMLHttpRequest()
-        var url = 'https://api.kde-look.org/ocs/v1/content/data?categories=608' ;
+        var url = categoryURL //'https://api.kde-look.org/ocs/v1/content/data?categories=608' ;
         xhr.open("GET",url,true);
         xhr.setRequestHeader('Content-Type',  'application/xml');
         xhr.send();
@@ -402,6 +404,7 @@ Kirigami.ApplicationWindow {
     Kirigami.Page{
         id: mainPageComponent
         title: "Mycroft Skills Installer"
+
         background: Rectangle {
             color: Qt.rgba(0,0,0,0.5)
         }
@@ -414,10 +417,135 @@ Kirigami.ApplicationWindow {
             XmlRole { name: "description"; query: "description/string()" }
             XmlRole { name: "downloadlink1"; query: "downloadlink1/string()" }
             XmlRole { name: "previewpic1"; query: "previewpic1/string()" }
+            XmlRole { name: "typename"; query: "typename/string()" }
         }
 
         ColumnLayout {
             anchors.fill: parent
+
+            ComboBox {
+                id: categorySelector
+                displayText: "Category: " + currentText
+                model: [ "All Skills", "Configuration", "Entertainment", "Information", "Productivity" ]
+                leftPadding: Kirigami.Units.gridUnit
+                rightPadding: Kirigami.Units.gridUnit
+                Keys.onDownPressed: {
+                    lview.forceActiveFocus()
+                }
+
+                Keys.onReturnPressed: {
+                    categorySelector.popup.open()
+                    categorySelector.popup.forceActiveFocus()
+                }
+
+                delegate: ItemDelegate {
+
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                    }
+
+                    contentItem: Kirigami.Heading{
+                        level: 2
+                        text: modelData
+                    }
+                }
+
+                indicator: Kirigami.Icon {
+                    width: Kirigami.Units.iconSizes.small
+                    height: Kirigami.Units.iconSizes.small
+                    x: 0//categorySelector.leftPadding //: categorySelector.width - width - categorySelector.rightPadding
+                    y: categorySelector.topPadding + (categorySelector.availableHeight - height) / 2
+                    source: categorySelector.popup.opened ? "arrow-up" : "arrow-down"
+                }
+
+                background: Rectangle {
+                    anchors.fill: parent
+                    anchors.rightMargin: -Kirigami.Units.gridUnit * 4
+                    color: categorySelector.focus ? Kirigami.Theme.highlightColor : "transparent"
+                }
+
+                contentItem: Kirigami.Heading {
+                        level: 2
+                        text: categorySelector.displayText
+                }
+
+                popup: Popup {
+                        y: categorySelector.height - 1
+                        width: categorySelector.width
+                        implicitHeight: contentItem.implicitHeight
+                        padding: 1
+
+                        onVisibleChanged: {
+                            if(visible){
+                                pCView.forceActiveFocus()
+                            }
+                        }
+
+                        contentItem: ListView {
+                            id: pCView
+                            clip: true
+                            implicitHeight: contentHeight
+                            model: categorySelector.popup.visible ? categorySelector.delegateModel : null
+                            currentIndex: categorySelector.highlightedIndex
+                            keyNavigationEnabled: true
+                            highlight: PlasmaComponents.Highlight{}
+                            highlightFollowsCurrentItem: true
+                            snapMode: ListView.SnapToItem
+
+                            Keys.onReturnPressed: {
+                                console.log(currentIndex)
+                                categorySelector.currentIndex = currentIndex
+                                categorySelector.popup.close()
+                                categorySelector.forceActiveFocus()
+                            }
+                        }
+
+                        background: Rectangle {
+                            anchors {
+                                fill: parent
+                                margins: -1
+                            }
+                            color: Kirigami.Theme.backgroundColor
+                            border.color: Kirigami.Theme.backgroundColor
+                            radius: 2
+                            layer.enabled: true
+
+                            layer.effect: DropShadow {
+                                transparentBorder: true
+                                radius: 4
+                                samples: 8
+                                horizontalOffset: 2
+                                verticalOffset: 2
+                                color: Qt.rgba(0, 0, 0, 0.3)
+                            }
+                        }
+                    }
+
+                onCurrentIndexChanged: {
+                    console.log(currentIndex)
+                    if(currentIndex == 0){
+                        categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608"
+                    } else if(currentIndex == 1){
+                        categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=609"
+                    } else if(currentIndex == 2){
+                        categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=415"
+                    } else if(currentIndex == 3){
+                        categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=610"
+                    } else if(currentIndex == 4){
+                        categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=611"
+                    } else {
+                        categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608"
+                    }
+                    getSkills()
+                    lview.forceActiveFocus()
+                }
+            }
+
+            Kirigami.Separator {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 1
+            }
 
             Views.TileView {
                 id: lview
@@ -464,6 +592,7 @@ Kirigami.ApplicationWindow {
                     setItem()
                     initInstallation()
                 }
+                KeyNavigation.up: categorySelector
                 KeyNavigation.down: refreshButton
             }
         }
