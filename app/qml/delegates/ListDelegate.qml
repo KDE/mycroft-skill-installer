@@ -25,13 +25,11 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.kirigami 2.11 as Kirigami
 
 Kirigami.AbstractListItem {
-    width: parent.width
-    height: exLabel.contentHeight + Kirigami.Units.iconSizes.smallMedium
-    //color: Kirigami.Theme.backgroundColor
-    //border.color: Kirigami.Theme.textColor
-    //border.width: 1
+    background: Rectangle {
+        color: Kirigami.Theme.backgroundColor
+    }
 
-    RowLayout {
+    contentItem: RowLayout {
         anchors.fill: parent
 
         Kirigami.Icon {
@@ -40,11 +38,12 @@ Kirigami.AbstractListItem {
             source: "choice-round"
         }
 
-        Label {
+        Kirigami.Heading {
             id: exLabel
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
             Layout.fillHeight: true
+            level: 3
             maximumLineCount: 1
             elide: Text.ElideRight
             color: PlasmaCore.ColorScope.textColor
