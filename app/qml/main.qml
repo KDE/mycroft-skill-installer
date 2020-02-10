@@ -362,6 +362,22 @@ Kirigami.ApplicationWindow {
         mainsession.setShellProgram("bash");
         mainsession.setArgs(cleaninstallerfiles)
         mainsession.startShellProgram();
+
+        if(hasDesktopFile){
+            currentPos = "cleanRemoverOneCompleted"
+        } else {
+            currentPos = "cleanRemoverCompleted"
+        }
+    }
+
+    function cleanRemoverTwo(){
+        pBar.value = 0.25
+        mainsession.hasFinished = false
+        currentPos = ""
+        var cleaninstallerfiles = ["-c", "rm -rf /tmp/removeDesktopFile.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(cleaninstallerfiles)
+        mainsession.startShellProgram();
         currentPos = "cleanRemoverCompleted"
     }
 
@@ -386,12 +402,54 @@ Kirigami.ApplicationWindow {
         mainsession.setShellProgram("bash");
         mainsession.setArgs(getinstallersarg)
         mainsession.startShellProgram();
+
+        if(hasDesktopFile){
+            currentPos = "getRemoveDesktopFile"
+        } else {
+            pBar.value = 1
+            currentPos = "permissionSetRemover"
+        }
+    }
+
+    function getRemoveDesktopFile(){
+        installStep.text = "INFO - Getting Desktop File Uninstaller"
+        pBar.value = 0.5
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/removeDesktopFile.sh -P /tmp"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "setRemoveDesktopFilePerm"
+    }
+
+    function setRemoveDesktopFilePerm(){
+        installStep.text = "INFO - Setting Uninstaller Permissions"
+        pBar.value = 0.80
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "chmod a+x /tmp/removeDesktopFile.sh"]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
+        currentPos = "removerDesktopFilePermsSet"
+    }
+
+    function runRemoverDesktopFile(){
+        installStep.text = "INFO - Remove Desktop File & Icon"
+        pBar.value = 1
+        mainsession.hasFinished = false
+        currentPos = ""
+        var getinstallersarg = ["-c", "/tmp/removeDesktopFile.sh" + ' ' + orignalFolder + ' ' + skillFolderName]
+        mainsession.setShellProgram("bash");
+        mainsession.setArgs(getinstallersarg)
+        mainsession.startShellProgram();
         currentPos = "permissionSetRemover"
     }
 
     function runRemover(){
         installStep.text = "INFO - Running Uninstaller"
-        pBar.value = 1
+        pBar.value = 0.9
         mainsession.hasFinished = false
         currentPos = ""
         var getinstallersarg = ["-c", "/tmp/remover.sh" + ' ' + orignalFolder + ' ' + skillFolderName]
@@ -425,8 +483,9 @@ Kirigami.ApplicationWindow {
 
             PlasmaComponents3.ComboBox {
                 id: categorySelector
-		Layout.preferredWidth: Kirigami.Units.gridUnit * 15
                 displayText: "Category: " + currentText
+                Layout.fillWidth: true
+                Layout.preferredHeight: Kirigami.Units.gridUnit * 2
                 model: [ "All Skills", "Configuration", "Entertainment", "Information", "Productivity" ]
                 leftPadding: Kirigami.Units.gridUnit
                 rightPadding: Kirigami.Units.gridUnit
@@ -591,7 +650,8 @@ Kirigami.ApplicationWindow {
 
                 Keys.onReturnPressed: {
                     setItem()
-                    initInstallation()
+                    //initInstallation()
+                    currentItem.ski.open()
                 }
                 KeyNavigation.up: categorySelector
                 KeyNavigation.down: refreshButton
@@ -751,6 +811,10 @@ Kirigami.ApplicationWindow {
                                 hasFinished = true
                                 getRemovers()
                                 break;
+                            case "cleanRemoverOneCompleted":
+                                hasFinished = true
+                                cleanRemoverTwo()
+                                break;
                             case "removerDownloaded":
                                 hasFinished = true
                                 setPermissionRemover()
@@ -759,13 +823,25 @@ Kirigami.ApplicationWindow {
                                 hasFinished = true
                                 runRemover()
                                 break;
+                            case "getRemoveDesktopFile":
+                                hasFinished = true
+                                getRemoveDesktopFile()
+                                break;
+                            case "setRemoveDesktopFilePerm":
+                                hasFinished = true
+                                setRemoveDesktopFilePerm()
+                                break;
+                            case "removerDesktopFilePermsSet":
+                                hasFinished = true
+                                runRemoverDesktopFile()
+                                break;
                             case "removerFinished":
                                 hasFinished = true
                                 installStep.text = "INFO - Uninstall Completed"
                                 xmlModel.reload()
                                 getSkills()
                                 delay(4000, function() {
-                                    mainInstallerDrawer.close()
+                                    //mainInstallerDrawer.close()
                                 })
                                 break;
                             }
