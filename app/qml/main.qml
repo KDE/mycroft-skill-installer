@@ -31,6 +31,7 @@ Kirigami.ApplicationWindow {
     property Component emptyHighlighter: Item{}
     property string categoryURL: "https://api.kde-look.org/ocs/v1/content/data?categories=608"
     property var jlist: []
+    property var fntSize: installStep.paintedHeight
     signal skillModelChanged
 
     function delay(delayTime, cb) {
@@ -44,7 +45,7 @@ Kirigami.ApplicationWindow {
         id: headerRect
         anchors.left: parent.left
         anchors.right: parent.right
-        height: window.width >= 1500 ? 150 : 30
+        height: fntSize > 25 ? 30 : 150
         color: "#211e1e"
         layer.enabled: true
         layer.effect: DropShadow {
@@ -107,6 +108,7 @@ Kirigami.ApplicationWindow {
     Component.onCompleted: {
         getSkills()
         lview.forceActiveFocus()
+        checkFontSizes()
     }
 
     FileReader {
