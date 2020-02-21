@@ -141,9 +141,6 @@ Controls.ItemDelegate {
 
         Image {
             id: icon
-            //Layout.maximumWidth: parent.width
-            //Layout.maximumHeight: width
-            //Layout.alignment: Qt.AlignTop
             width: parent.width
             height: width - Kirigami.Units.gridUnit * 3.25
             anchors.top: label.bottom
@@ -175,7 +172,7 @@ Controls.ItemDelegate {
             anchors.bottom: installedBox.top
             width: parent.width
             level: 3
-            maximumLineCount: 3
+            maximumLineCount: 4
             elide: Text.ElideRight
             color: PlasmaCore.ColorScope.textColor
             text: description

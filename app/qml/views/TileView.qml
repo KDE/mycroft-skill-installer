@@ -26,8 +26,7 @@ import org.kde.kirigami 2.5 as Kirigami
 
 ListView {
     id: view
-    property int columns: window.width >= 1500 ? Math.max(3, Math.floor(width / (units.gridUnit * 14))) : 5
-
+    property int columns: 5
     readonly property int cellWidth: width / columns
 
     property Item navigationUp
