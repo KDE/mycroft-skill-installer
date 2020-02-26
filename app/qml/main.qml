@@ -683,6 +683,7 @@ Kirigami.ApplicationWindow {
                 PlasmaComponents.Label {
                     id: installStep
                     visible: text.length > 0
+                    anchors.top: parent.top
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.leftMargin: Kirigami.Units.largeSpacing
@@ -697,12 +698,13 @@ Kirigami.ApplicationWindow {
 
                 ProgressBar {
                     id: pBar
+                    anchors.top: installStep.bottom
+                    anchors.topMargin: Kirigami.Units.largeSpacing
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.leftMargin: Kirigami.Units.largeSpacing
                     anchors.rightMargin: Kirigami.Units.largeSpacing
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: Kirigami.Units.gridUnit * 2
+                    anchors.bottom: parent.bottom
                 }
             }
 
@@ -843,7 +845,7 @@ Kirigami.ApplicationWindow {
                                 xmlModel.reload()
                                 getSkills()
                                 delay(4000, function() {
-                                    //mainInstallerDrawer.close()
+                                    mainInstallerDrawer.close()
                                 })
                                 break;
                             }

@@ -253,6 +253,7 @@ Controls.ItemDelegate {
                     Layout.preferredWidth: Kirigami.Units.iconSizes.huge
                     Layout.preferredHeight: Kirigami.Units.iconSizes.huge
                     Layout.alignment: Qt.AlignCenter
+                    Layout.leftMargin: Kirigami.Units.smallSpacing
                     fillMode: Image.Stretch
                     source: previewpic1
                 }
@@ -275,7 +276,10 @@ Controls.ItemDelegate {
             Kirigami.Separator {
                 id: descSept1
                 anchors.top: desc.bottom
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: Kirigami.Units.smallSpacing
+                anchors.rightMargin: Kirigami.Units.smallSpacing
                 height: 1
             }
 
@@ -285,13 +289,18 @@ Controls.ItemDelegate {
                 anchors.top: descSept1.bottom
                 width: parent.width
                 height: Kirigami.Units.gridUnit * 2
+                anchors.left: parent.left
+                anchors.leftMargin: Kirigami.Units.smallSpacing
                 text: "Some Example's To Try: " + "<i>Hey Mycroft..</i>"
             }
 
             Kirigami.Separator {
                 id: descSept2
                 anchors.top: descListHeading.bottom
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: Kirigami.Units.smallSpacing
+                anchors.rightMargin: Kirigami.Units.smallSpacing
                 height: 1
             }
 
@@ -305,7 +314,7 @@ Controls.ItemDelegate {
                     anchors.fill: parent
                     spacing: 1
                     clip: true
-                    delegate: ListDelegate {}
+                    delegate: ListDelegate{}
                 }
             }
 
@@ -328,15 +337,24 @@ Controls.ItemDelegate {
             }
 
             Controls.Button {
+                id: checkForUpdates
+                visible: iconInstall.visible
+                text: "Check For Updates"
+            }
+
+            Controls.Button {
                 id: installUninstallBtn
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
+                anchors.leftMargin: Kirigami.Units.smallSpacing
+                anchors.rightMargin: Kirigami.Units.smallSpacing
+                anchors.bottomMargin: Kirigami.Units.smallSpacing
                 anchors.right: parent.right
                 height: Kirigami.Units.gridUnit * 2
 
                 background: Rectangle {
                     Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                    color: installUninstallBtn.down ? Kirigami.Theme.hoverColor : Kirigami.Theme.backgroundColor
+                    color: installUninstallBtn.down ? Kirigami.Theme.highlightColor : Kirigami.Theme.backgroundColor
                     border.color: installUninstallBtn.activeFocus ? Kirigami.Theme.hoverColor : Kirigami.Theme.disabledTextColor
                     border.width: 1
                 }
