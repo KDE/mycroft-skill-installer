@@ -305,7 +305,7 @@ Controls.ItemDelegate {
                     anchors.fill: parent
                     spacing: 1
                     clip: true
-                    delegate: ListDelegate {}
+                    delegate: ListDelegate{}
                 }
             }
 
@@ -325,6 +325,12 @@ Controls.ItemDelegate {
                     visible: iconInstall.visible
                     anchors.leftMargin: Kirigami.Units.smallSpacing
                 }
+            }
+
+            Controls.Button {
+                id: checkForUpdates
+                visible: iconInstall.visible
+                text: "Check For Updates"
             }
 
             Controls.Button {
