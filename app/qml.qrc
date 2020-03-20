@@ -19,5 +19,8 @@
         <file>qml/+mediacenter/delegates/ListDelegate.qml</file>
         <file>qml/+mediacenter/delegates/TileDelegate.qml</file>
         <file>qml/images/green-tick.svg</file>
+        <file>qml/images/green-tick-big.svg</file>
+        <file>qml/images/green-tick-transparent.svg</file>
+        <file>qml/images/green-tick-thick.svg</file>
     </qresource>
 </RCC>
