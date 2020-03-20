@@ -652,6 +652,8 @@ Kirigami.ApplicationWindow {
                         width: Kirigami.Units.iconSizes.medium
                         height: Kirigami.Units.iconSizes.medium
                         anchors.centerIn: parent
+                        enabled: lviewFirstItem
+                        opacity: lviewFirstItem ? 1 : 0.4
                     }
                 }
 
@@ -736,6 +738,8 @@ Kirigami.ApplicationWindow {
                         width: Kirigami.Units.iconSizes.medium
                         height: Kirigami.Units.iconSizes.medium
                         anchors.centerIn: parent
+                        enabled: lview.currentIndex != (lview.view.count - 1) ? 1 : 0
+                        opacity: lview.currentIndex != (lview.view.count - 1) ? 1 : 0.4
                     }
                 }
             }
