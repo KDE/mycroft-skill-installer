@@ -640,7 +640,8 @@ Kirigami.ApplicationWindow {
                     anchors.left: parent.left
                     radius: width
                     anchors.leftMargin: Kirigami.Units.largeSpacing
-                    visible: lviewFirstItem
+                    enabled: lviewFirstItem
+                    opacity: lviewFirstItem ? 1 : 0.4
 
                     shadow {
                          size: Kirigami.Units.largeSpacing * 2
@@ -655,7 +656,7 @@ Kirigami.ApplicationWindow {
                 }
 
                 Rectangle {
-                    anchors.left: lviewFirstItem ? leftArrow.right : parent.left
+                    anchors.left: leftArrow.right
                     anchors.leftMargin: Kirigami.Units.largeSpacing
                     anchors.right: rightArrow.left
                     anchors.rightMargin: Kirigami.Units.largeSpacing
@@ -667,7 +668,7 @@ Kirigami.ApplicationWindow {
                         id: lview
                         focus: true
                         title: " "
-                        cellWidth: lviewFirstItem ? parent.width / 4 : (parent.width - (Kirigami.Units.iconSizes.large + Kirigami.Units.largeSpacing)) / 4
+                        cellWidth: parent.width / 4
                         anchors.left: parent.left
                         anchors.leftMargin: Kirigami.Units.gridUnit
                         width: parent.width
@@ -722,7 +723,8 @@ Kirigami.ApplicationWindow {
                     anchors.rightMargin: Kirigami.Units.largeSpacing
                     anchors.right: parent.right
                     radius: width
-                    visible: lview.currentIndex != (lview.view.count - 1) ? 1 : 0
+                    enabled: lview.currentIndex != (lview.view.count - 1) ? 1 : 0
+                    opacity: lview.currentIndex != (lview.view.count - 1) ? 1 : 0.4
 
                     shadow {
                          size: Kirigami.Units.largeSpacing * 2

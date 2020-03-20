@@ -168,17 +168,17 @@ BigScreen.AbstractDelegate {
                     //Layout.preferredWidth: Kirigami.Units.iconSizes.large
                     //Layout.preferredHeight: Kirigami.Units.iconSizes.large
                     //Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                    Layout.topMargin: Kirigami.Units.largeSpacing * 2
+                    Layout.topMargin: Kirigami.Units.largeSpacing
                     Layout.alignment: Qt.AlignHCenter
-                    width: Kirigami.Units.iconSizes.large
-                    height: width
-                    source: "qrc:/qml/images/green-tick.svg"
+                    Layout.preferredWidth: Kirigami.Units.iconSizes.medium
+                    Layout.preferredHeight: width
+                    source: "qrc:/qml/images/green-tick-thick.svg"
                     visible: true
                 }
 
                 Kirigami.Heading {
                     level: 3
-                    Layout.topMargin: Kirigami.Units.largeSpacing * 2
+                    Layout.topMargin: Kirigami.Units.largeSpacing
                     Layout.alignment: Qt.AlignHCenter
                     text: "Installed"
                 }
