@@ -36,4 +36,4 @@ private:
     QSysInfo* SystemInfo;
 };
 
-#endif // FILEREADER_H
+#endif // SYSINFO_H
