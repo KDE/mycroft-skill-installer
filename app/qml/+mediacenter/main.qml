@@ -10,6 +10,7 @@ import QtQuick.XmlListModel 2.13
 import org.kde.mycroft.bigscreen 1.0 as BigScreen
 import QMLTermWidget 1.0
 import FileReader 1.0
+import SysInfo 1.0
 
 import "+mediacenter/delegates" as Delegates
 
@@ -652,6 +653,8 @@ Kirigami.ApplicationWindow {
                         width: Kirigami.Units.iconSizes.medium
                         height: Kirigami.Units.iconSizes.medium
                         anchors.centerIn: parent
+                        enabled: lviewFirstItem
+                        opacity: lviewFirstItem ? 1 : 0.4
                     }
                 }
 
@@ -736,6 +739,8 @@ Kirigami.ApplicationWindow {
                         width: Kirigami.Units.iconSizes.medium
                         height: Kirigami.Units.iconSizes.medium
                         anchors.centerIn: parent
+                        enabled: lview.currentIndex != (lview.view.count - 1) ? 1 : 0
+                        opacity: lview.currentIndex != (lview.view.count - 1) ? 1 : 0.4
                     }
                 }
             }

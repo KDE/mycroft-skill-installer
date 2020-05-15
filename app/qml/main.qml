@@ -9,6 +9,7 @@ import QtGraphicalEffects 1.0
 import QtQuick.XmlListModel 2.13
 import QMLTermWidget 1.0
 import FileReader 1.0
+import SysInfo 1.0
 
 import "delegates" as Delegates
 import "views" as Views

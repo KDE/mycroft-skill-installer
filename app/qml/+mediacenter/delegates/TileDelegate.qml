@@ -24,6 +24,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.kirigami 2.12 as Kirigami
 import QtGraphicalEffects 1.0
 import org.kde.mycroft.bigscreen 1.0 as BigScreen
+import SysInfo 1.0
 
 BigScreen.AbstractDelegate {
     id: delegate
@@ -32,6 +33,7 @@ BigScreen.AbstractDelegate {
     implicitHeight: listView.height
 
     property var skillInfo
+    property var supportedPlatforms
     property alias ski: skillInstallerBox
 
     onClicked: {
@@ -57,15 +59,21 @@ BigScreen.AbstractDelegate {
                 var defaultFold = '/opt/mycroft/skills'
                 console.log(checkModel.skillname)
                 var skillObj = {}
+                var skillPlatforms = []
                 var skillPath = defaultFold + "/" + checkModel.skillname + "." + checkModel.authorname
+                if (checkModel.platforms){
+                    skillPlatforms = checkModel.platforms
+                } else {
+                    skillPlatforms = ["all"]
+                }
                 if(fileReader.file_exists_local(skillPath)){
                     console.log("installed")
-                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: true, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples}
+                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: true, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples, platforms: skillPlatforms}
                     skillInfo = skillObj
                 }
                 else {
                     console.log("false")
-                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: false, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples}
+                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: false, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples, platforms: skillPlatforms}
                     skillInfo = skillObj
                 }
             }
@@ -75,6 +83,7 @@ BigScreen.AbstractDelegate {
     onSkillInfoChanged: {
         console.log(skillInfo.skillFolderPath)
         exampleRep.model = skillInfo.examples
+        supportedPlatforms = skillInfo.platforms
         installedBox.visible = skillInfo.skillInstalled
     }
 
@@ -194,9 +203,26 @@ BigScreen.AbstractDelegate {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         dim: true
+        property var getArch: SysInfo.getArch()
 
         onOpened: {
             installUninstallBtn.forceActiveFocus()
+            checkPlatformSupport()
+        }
+
+        function checkPlatformSupport() {
+            if(supportedPlatforms.indexOf("all") != -1){
+                return 1
+            } else {
+                if(supportedPlatforms.indexOf(getArch) != -1){
+                    return 1
+                } else {
+                    installUninstallBtn.enabled = false
+                    skiStatusLabl.text = "Unsupported Architecture"
+                    skiStatusArea.visible = true
+                    return 0
+                }
+            }
         }
 
         background: Rectangle {
@@ -304,10 +330,11 @@ BigScreen.AbstractDelegate {
                 width: parent.width
 
                 Kirigami.Heading {
+                    id: skiStatusLabl
                     level: 3
                     text: "Status: Installed"
                     anchors.fill: parent
-                    visible: iconInstall.visible
+                    visible: skiStatusArea.visible
                     anchors.leftMargin: Kirigami.Units.smallSpacing
                 }
             }

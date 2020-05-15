@@ -32,6 +32,7 @@ Controls.ItemDelegate {
 
     readonly property ListView listView: ListView.view
     property var skillInfo
+    property var supportedPlatforms
     property alias ski: skillInstallerBox
 
     z: listView.currentIndex == index ? 2 : 0
@@ -59,15 +60,21 @@ Controls.ItemDelegate {
                 var defaultFold = '/opt/mycroft/skills'
                 console.log(checkModel.skillname)
                 var skillObj = {}
+                var skillPlatforms = []
                 var skillPath = defaultFold + "/" + checkModel.skillname + "." + checkModel.authorname
+                if (checkModel.platforms){
+                    skillPlatforms = checkModel.platforms
+                } else {
+                    skillPlatforms = ["all"]
+                }
                 if(fileReader.file_exists_local(skillPath)){
                     console.log("installed")
-                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: true, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples}
+                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: true, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples, platforms: skillPlatforms}
                     skillInfo = skillObj
                 }
                 else {
                     console.log("false")
-                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: false, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples}
+                    skillObj = {displayName: checkModel.name, skillName: checkModel.skillname, authorName: checkModel.authorname, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: false, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples, platforms: skillPlatforms}
                     skillInfo = skillObj
                 }
             }
@@ -77,6 +84,7 @@ Controls.ItemDelegate {
     onSkillInfoChanged: {
         console.log(skillInfo.skillFolderPath)
         exampleRep.model = skillInfo.examples
+        supportedPlatforms = skillInfo.platforms
         installedBox.visible = skillInfo.skillInstalled
     }
 
@@ -218,9 +226,26 @@ Controls.ItemDelegate {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
         dim: true
+        property var getArch: SysInfo.getArch()
 
         onOpened: {
-             installUninstallBtn.forceActiveFocus()
+            installUninstallBtn.forceActiveFocus()
+            checkPlatformSupport()
+        }
+
+        function checkPlatformSupport() {
+            if(supportedPlatforms.indexOf("all") != -1){
+                return 1
+            } else {
+                if(supportedPlatforms.indexOf(getArch) != -1){
+                    return 1
+                } else {
+                    installUninstallBtn.enabled = false
+                    skiStatusLabl.text = "Unsupported Architecture"
+                    skiStatusArea.visible = true
+                    return 0
+                }
+            }
         }
 
         background: Rectangle {
@@ -367,7 +392,8 @@ Controls.ItemDelegate {
                 }
 
                 onClicked: {
-                    window.initInstallation()
+                    if(sysInfo.getArch())
+                        window.initInstallation()
                 }
 
                 Keys.onReturnPressed: {

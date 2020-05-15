@@ -22,5 +22,7 @@
         <file>qml/images/green-tick-big.svg</file>
         <file>qml/images/green-tick-transparent.svg</file>
         <file>qml/images/green-tick-thick.svg</file>
+        <file>sysinfo.h</file>
+        <file>sysinfo.cpp</file>
     </qresource>
 </RCC>
