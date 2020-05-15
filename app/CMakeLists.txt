@@ -2,6 +2,7 @@ qt5_add_resources(mycroft_skill_installer_SRCS qml.qrc)
 add_executable(MycroftSkillInstaller ${mycroft_skill_installer_SRCS}
     main.cpp
     filereader.cpp
+    sysinfo.cpp
 )
 
 target_link_libraries(MycroftSkillInstaller 

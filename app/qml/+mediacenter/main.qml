@@ -10,6 +10,7 @@ import QtQuick.XmlListModel 2.13
 import org.kde.mycroft.bigscreen 1.0 as BigScreen
 import QMLTermWidget 1.0
 import FileReader 1.0
+import SysInfo 1.0
 
 import "+mediacenter/delegates" as Delegates
 
