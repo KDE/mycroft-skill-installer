@@ -166,7 +166,7 @@ Drawer {
                         case "desktopFileInstallerFinished":
                             hasFinished = true
                             installStep.text = "INFO - Installation Completed"
-                            delay(3000, function() {
+                            SkillUtils.delay(3000, function() {
                                 installerView.updateXMLModel()
                                 mainInstallerDrawer.close()
                             })
