@@ -18,6 +18,7 @@ Drawer {
     dim: false
 
     property var currentPos
+    property bool hasSystemDeps
 
     function initializeInstaller() {
         Installer.initInstallation()
@@ -99,29 +100,62 @@ Drawer {
                         switch(currentPos){
                         case "cleanInstallerCompleted":
                             hasFinished = true;
-                            if(informationModel.hasSystemDeps){
-                                Installer.getSysDepInstaller()
+                            if(hasSystemDeps){
+                                Installer.getSysDepInstallerOne()
                             }
                             else {
                                 Installer.getInstallers()
                             }
                             break;
+                        case "cleanInstallerSysDepOneCompleted":
+                            hasFinished = true;
+                            Installer.cleanSysDepInstallerFileTwo()
+                            break
+                        case "cleanInstallerSysDepTwoCompleted":
+                            hasFinished = true;
+                            Installer.cleanSysDepInstallerFileThree()
+                            break
+                        case "installerOneDownloaded":
+                            hasFinished = true;
+                            Installer.getSysDepInstallerTwo()
+                            break
+                        case "installerTwoDownloaded":
+                            hasFinished = true;
+                            Installer.getSysDepInstallerThree()
+                            break
                         case "installerDownloaded":
                             hasFinished = true;
-                            if(informationModel.hasSystemDeps){
-                                Installer.setPermissionSysDepInstaller()
+                            if(hasSystemDeps){
+                                Installer.setPermissionSysDepInstallerOne()
                             } else {
                                 Installer.setPermission()
                             }
                             break;
+
+                        case "permissionOneSet":
+                            hasFinished = true;
+                            Installer.setPermissionSysDepInstallerTwo()
+                            break
+
+                        case "permissionTwoSet":
+                            hasFinished = true;
+                            Installer.setPermissionSysDepInstallerThree()
+                            break
+
                         case "permissionSet":
                             hasFinished = true;
-                            if(informationModel.hasSystemDeps){
-                                Installer.runSysDepInstallers()
+                            if(hasSystemDeps){
+                                Installer.runSysDepInstallerOne()
                             } else {
                                 Installer.runInstallers()
                             }
                             break;
+
+                        case "installerOneFinished":
+                            hasFinished = true;
+                            Installer.runSysDepInstallerTwo()
+                            break;
+
                         case "installerFinished":
                             hasFinished = true
                             //getSkillStatus()
