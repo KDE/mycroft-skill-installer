@@ -1,5 +1,5 @@
 import QtQuick 2.9
-import "Rnd.js" as MathFn
+import "code/Rnd.js" as MathFn
 
 Item {
     anchors.fill: parent
