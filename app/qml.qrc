@@ -3,26 +3,30 @@
         <file>main.cpp</file>
         <file>filereader.cpp</file>
         <file>filereader.h</file>
+        <file>sysinfo.h</file>
+        <file>sysinfo.cpp</file>
         <file>qml/main.qml</file>
         <file>qml/images/mycroft_logo.png</file>
         <file>qml/images/mycroft-plasma-appicon.png</file>
         <file>qml/CanBackground.qml</file>
-        <file>qml/Rnd.js</file>
         <file>qml/images/mycroft_ai_logo.png</file>
         <file>qml/images/mpl.png</file>
         <file>qml/delegates/background.svg</file>
         <file>qml/delegates/TileDelegate.qml</file>
         <file>qml/views/TileView.qml</file>
         <file>qml/delegates/ListDelegate.qml</file>
-        <file>qml/+mediacenter/main.qml</file>
-        <file>qml/+mediacenter/delegates/background.svg</file>
-        <file>qml/+mediacenter/delegates/ListDelegate.qml</file>
-        <file>qml/+mediacenter/delegates/TileDelegate.qml</file>
         <file>qml/images/green-tick.svg</file>
         <file>qml/images/green-tick-big.svg</file>
         <file>qml/images/green-tick-transparent.svg</file>
         <file>qml/images/green-tick-thick.svg</file>
-        <file>sysinfo.h</file>
-        <file>sysinfo.cpp</file>
+        <file>qml/code/Installer.js</file>
+        <file>qml/code/Rnd.js</file>
+        <file>qml/code/SkillUtils.js</file>
+        <file>qml/InstallerBox.qml</file>
+        <file>qml/FooterArea.qml</file>
+        <file>qml/HeaderArea.qml</file>
+        <file>qml/InformationModel.qml</file>
+        <file>qml/InstallerView.qml</file>
+        <file>qml/InstallerArea.qml</file>
     </qresource>
 </RCC>
