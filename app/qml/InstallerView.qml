@@ -150,17 +150,17 @@ Kirigami.Page {
             onCurrentIndexChanged: {
                 console.log(currentIndex)
                 if(currentIndex == 0){
-                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608"
+                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100"
                 } else if(currentIndex == 1){
-                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=609"
+                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=609&pagesize=100"
                 } else if(currentIndex == 2){
-                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=415"
+                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=415&pagesize=100"
                 } else if(currentIndex == 3){
-                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=610"
+                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=610&pagesize=100"
                 } else if(currentIndex == 4){
-                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=611"
+                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=611&pagesize=100"
                 } else {
-                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608"
+                    informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100"
                 }
                 SkillUtils.getSkills()
                 lview.forceActiveFocus()
