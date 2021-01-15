@@ -35,11 +35,14 @@ BigScreen.AbstractDelegate {
     implicitHeight: listView.height
 
     property var skillInfo
+    property bool delDisbaled: false
 
     onClicked: {
-        listView.currentIndex = index
-        lview.setItem()
-        installerBox.open()
+        if(!delDisbaled){
+            listView.currentIndex = index
+            lview.setItem()
+            installerBox.open()
+        }
     }
 
     Keys.onReturnPressed: {
@@ -47,7 +50,11 @@ BigScreen.AbstractDelegate {
     }
 
     Component.onCompleted: {
-        SkillUtils.populateSkillInfo(downloadlink1)
+        if (downloadlink1.substring(downloadlink1.lastIndexOf('/') + 1) != "skill.json"){
+            delegate.delDisbaled = true;
+        } else {
+            SkillUtils.populateSkillInfo(downloadlink1)
+        }
     }
 
     onSkillInfoChanged: {
@@ -55,6 +62,40 @@ BigScreen.AbstractDelegate {
     }
 
     contentItem: Item {
+
+        Rectangle {
+            anchors.fill: parent
+            visible: delDisbaled
+            enabled: delDisbaled
+            color: Qt.rgba(0, 0, 0, 0.95)
+            z: 200
+
+            Kirigami.Heading {
+                anchors.top: parent.top
+                anchors.topMargin: Kirigami.Units.largeSpacing
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                level: 3
+                text: name
+            }
+
+            Kirigami.Heading {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                level: 3
+                text: "Skill Disabled\nContact Author\n" + personid
+            }
+
+            Kirigami.Heading {
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: Kirigami.Units.largeSpacing
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                level: 3
+                color: Kirigami.Theme.linkColor
+                text: "Error: Invalid JSON"
+            }
+        }
 
         Kirigami.Heading {
             id: label

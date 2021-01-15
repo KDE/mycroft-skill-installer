@@ -41,6 +41,7 @@ Kirigami.Page {
         XmlRole { name: "downloadlink1"; query: "downloadlink1/string()" }
         XmlRole { name: "previewpic1"; query: "previewpic1/string()" }
         XmlRole { name: "typename"; query: "typename/string()" }
+        XmlRole { name: "personid"; query: "personid/string()" }
     }
 
     ColumnLayout {
