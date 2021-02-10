@@ -1,3 +1,9 @@
+/*
+ *   SPDX-FileCopyrightText: 2019-2020 Aditya Mehra <aix.m@outlook.org>
+ *
+ *   SPDX-License-Identifier: GPL-3.0-or-later OR LicenseRef-KDE-Accepted-GPL
+ */
+
 import QtQuick 2.9
 import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.3
