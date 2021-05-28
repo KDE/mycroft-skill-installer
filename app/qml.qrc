@@ -28,5 +28,6 @@
         <file>qml/InformationModel.qml</file>
         <file>qml/InstallerView.qml</file>
         <file>qml/InstallerArea.qml</file>
+        <file>qml/SortFilterModel.qml</file>
     </qresource>
 </RCC>

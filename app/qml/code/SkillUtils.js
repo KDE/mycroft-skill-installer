@@ -5,6 +5,15 @@ function delay(delayTime, cb) {
     delayTimer.start();
 }
 
+function fillListModel()
+{
+    sortModel.clear()
+    var n;
+    for (n=0; n < xmlModel.count; n++) {
+        sortModel.append({"typename": xmlModel.get(n).typename, "name": xmlModel.get(n).name, "description": xmlModel.get(n).description, "downloadlink1": xmlModel.get(n).downloadlink1, "previewpic1": xmlModel.get(n).previewpic1, "personid": xmlModel.get(n).personid, "id": xmlModel.get(n).id, "downloads": xmlModel.get(n).downloads})
+    }
+}
+
 function getSkills(){
     var xhr = new XMLHttpRequest()
     var url = informationModel.categoryURL //'https://api.kde-look.org/ocs/v1/content/data?categories=608' ;
@@ -20,7 +29,7 @@ function getSkills(){
             {
                 var a = xhr.responseXML.documentElement;
                 xmlModel.xml = xhr.responseText
-                lview.model = xmlModel
+                //lview.model = xmlModel
             }
             else
             {
