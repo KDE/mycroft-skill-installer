@@ -1,3 +1,5 @@
+var retryFetch = 0
+
 function delay(delayTime, cb) {
     delayTimer.interval = delayTime;
     delayTimer.repeat = false;
@@ -20,7 +22,7 @@ function getSkills(){
     xhr.open("GET",url,true);
     xhr.setRequestHeader('Content-Type',  'application/xml');
     xhr.send();
-
+    retryFetch = retryFetch + 1
     xhr.onreadystatechange = function()
     {
         if ( xhr.readyState == xhr.DONE )
@@ -29,11 +31,21 @@ function getSkills(){
             {
                 var a = xhr.responseXML.documentElement;
                 xmlModel.xml = xhr.responseText
+                viewBusyIndicator.running = false
+                viewBusyIndicator.visible = false
+                viewBusyIndicator.enabled = false
                 //lview.model = xmlModel
             }
             else
             {
-                item.error();
+                console.log("Timed Out Error")
+                if(retryFetch <= 3){
+                    console.log("Retrying Fetch!")
+                    getSkills()
+                } else {
+                    viewBusyIndicator.running = false
+                    viewBusyIndicatorLabel.text = "Error Fetching Skills"
+                }
             }
         }
     }

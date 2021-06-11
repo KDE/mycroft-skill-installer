@@ -29,6 +29,12 @@ Kirigami.Page {
     function updateXMLModel(){
         xmlModel.reload()
         SkillUtils.getSkills()
+        if(sortModel.count <= 0) {
+            viewBusyIndicator.visible = true
+            viewBusyIndicator.running = true
+            viewBusyIndicator.enabled = true
+            viewBusyIndicatorLabel.text = "Loading Skills"
+        }
         if(installerBox.opened){
             installerBox.close()
         }
@@ -290,6 +296,20 @@ Kirigami.Page {
                 height: parent.height
                 color: "transparent"
                 clip: true
+
+                PlasmaComponents3.BusyIndicator {
+                    id: viewBusyIndicator
+                    visible: true
+                    anchors.centerIn: parent
+                    running: true
+
+                    Label {
+                        id: viewBusyIndicatorLabel
+                        anchors.top: parent.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "Loading Skills"
+                    }
+                }
 
                 SortFilterModel {
                     id: sortModel
