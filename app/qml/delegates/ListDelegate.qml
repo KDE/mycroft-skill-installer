@@ -17,6 +17,12 @@ Kirigami.AbstractListItem {
         color: Kirigami.Theme.backgroundColor
     }
 
+    function listProperty(item)
+    {
+        for (var p in item)
+        console.log(p + ": " + item[p]);
+    }
+
     contentItem: RowLayout {
         anchors.fill: parent
 

@@ -3,6 +3,8 @@ add_executable(MycroftSkillInstaller ${mycroft_skill_installer_SRCS}
     main.cpp
     filereader.cpp
     sysinfo.cpp
+    installerlistmodel.cpp
+    processcommander.cpp
 )
 
 target_link_libraries(MycroftSkillInstaller 

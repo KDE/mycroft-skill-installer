@@ -30,6 +30,10 @@ Drawer {
         Installer.initInstallation()
     }
 
+    function initializeUpdater() {
+        Installer.initUpdate()
+    }
+
     ColumnLayout {
         anchors.fill: parent
 
@@ -183,7 +187,8 @@ Drawer {
                             hasFinished = true
                             installStep.text = "INFO - Installation Completed"
                             SkillUtils.delay(3000, function() {
-                                installerView.updateXMLModel()
+                                installerBox.close()
+                                installerView.updateInstallerModel()
                                 mainInstallerDrawer.close()
                             })
                             break;
@@ -207,7 +212,8 @@ Drawer {
                             hasFinished = true
                             installStep.text = "INFO - Installation Completed"
                             SkillUtils.delay(3000, function() {
-                                installerView.updateXMLModel()
+                                installerBox.close()
+                                installerView.updateInstallerModel()
                                 mainInstallerDrawer.close()
                             })
                             break;
@@ -244,7 +250,29 @@ Drawer {
                             hasFinished = true
                             installStep.text = "INFO - Uninstall Completed"
                             SkillUtils.delay(3000, function() {
-                                installerView.updateXMLModel()
+                                installerBox.close()
+                                installerView.updateInstallerModel()
+                                mainInstallerDrawer.close()
+                            })
+                            break;                            
+                        case "updaterCleared":
+                            hasFinished = true
+                            Installer.getUpdater()
+                            break;
+                        case "updaterDownloaded":
+                            hasFinished = true
+                            Installer.setUpdaterPermission()
+                            break;
+                        case "updaterPermsSet":
+                            hasFinished = true
+                            Installer.runUpdater()
+                            break;
+                        case "updaterFinished":
+                            hasFinished = true
+                            installStep.text = "INFO - Update Completed"
+                            SkillUtils.delay(3000, function() {
+                                installerBox.close()
+                                installerView.updateInstallerModel()
                                 mainInstallerDrawer.close()
                             })
                             break;

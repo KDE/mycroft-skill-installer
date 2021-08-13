@@ -7,6 +7,7 @@
 import QtQuick 2.9
 import org.kde.kirigami 2.12 as Kirigami
 import FileReader 1.0
+import InstallerListModel 1.0
 
 Kirigami.ApplicationWindow {
     id: window
@@ -42,7 +43,6 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        installerView.updateXMLModel()
         installerView.skillView.forceActiveFocus()
     }
 }

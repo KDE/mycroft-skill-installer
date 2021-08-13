@@ -18,6 +18,7 @@ Item {
     property bool hasSystemDeps
     property var supportedPlatforms
     property bool hasDesktopFile
+    property var skillUpdatePath
     property Component highlighter: PlasmaComponents.Highlight{}
     property Component emptyHighlighter: Item{}
     property string categoryURL: "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100"
