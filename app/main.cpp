@@ -12,6 +12,7 @@
 #include <QStringList>
 #include "filereader.h"
 #include "sysinfo.h"
+#include "installerlistmodel.h"
 
 static QObject *sysinfo_singleton(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon("qrc:mycroft-plasma-appicon.png"));
     qmlRegisterType<FileReader>("FileReader", 1, 0, "FileReader");
+    qmlRegisterType<InstallerListModel>("InstallerListModel", 1, 0, "InstallerListModel");
     qmlRegisterSingletonType<SysInfo>("SysInfo", 1, 0, "SysInfo", sysinfo_singleton);
 
     QQmlApplicationEngine engine;

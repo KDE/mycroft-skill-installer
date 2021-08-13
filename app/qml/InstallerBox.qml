@@ -27,14 +27,20 @@ Popup {
 
     onOpened: {
         installUninstallBtn.forceActiveFocus()
-        checkPlatformSupport()
     }
 
     function checkPlatformSupport() {
-        if(skillInfo.platforms.indexOf("all") !== -1){
+        console.log("From QML BOX: " + skillInfo.itemUpdateStatus)
+        var platforms
+        if(skillInfo.platforms === "all"){
+            platforms = ["all"]
+        } else {
+            platforms = skillInfo.platforms.split(",")
+        }
+        if(platforms.indexOf("all") !== -1){
             return 1
         } else {
-            if(skillInfo.platforms.indexOf(getArch) !== -1){
+            if(platforms.indexOf(getArch) !== -1){
                 return 1
             } else {
                 installUninstallBtn.enabled = false
@@ -77,7 +83,7 @@ Popup {
                 Layout.alignment: Qt.AlignCenter
                 Layout.leftMargin: Kirigami.Units.smallSpacing
                 fillMode: Image.Stretch
-                source: typeof skillInfo.itemPreviewPic !== "undefined" ? skillInfo.itemPreviewPic : ""
+                source: skillInfo ? (typeof skillInfo.itemPreviewPic !== "undefined" ? skillInfo.itemPreviewPic : "") : ""
             }
 
             Kirigami.Heading {
@@ -91,7 +97,7 @@ Popup {
                 maximumLineCount: 3
                 elide: Text.ElideRight
                 color: Kirigami.Theme.textColor
-                text: typeof skillInfo.itemDescription !== "undefined" ? skillInfo.itemDescription : ""
+                text: skillInfo ? (typeof skillInfo.itemDescription !== "undefined" ? skillInfo.itemDescription : "") : ""
             }
         }
 
@@ -131,10 +137,11 @@ Popup {
             anchors.topMargin: Kirigami.Units.smallSpacing
             width: parent.width
             height: parent.height / 2
+
             Kirigami.CardsListView {
                 id: exampleRep
                 anchors.fill: parent
-                model: typeof skillInfo.examples !== "undefined" ? skillInfo.examples : ""
+                model: skillInfo ? (typeof skillInfo.examples !== "undefined" ? skillInfo.examples.split(",") : "") : ""
                 spacing: 1
                 clip: true
                 delegate: Delegates.ListDelegate{}
@@ -145,15 +152,15 @@ Popup {
             id: skiStatusArea
             anchors.bottom: installUninstallBtn.top
             anchors.bottomMargin: Kirigami.Units.smallSpacing
-            color: Kirigami.Theme.highlightColor
+            color: skillInfo ? (typeof skillInfo.itemUpdateStatus !== "undefined" && skillInfo.itemUpdateStatus ? "#33BB5E" : Kirigami.Theme.highlightColor) : ""
             height: Kirigami.Units.gridUnit * 2
-            visible: typeof skillInfo.itemInstallStatus !== "undefined" ? skillInfo.itemInstallStatus : ""
+            visible: skillInfo ? (typeof skillInfo.itemInstallStatus !== "undefined" ? skillInfo.itemInstallStatus : "") : ""
             width: parent.width
 
             Kirigami.Heading {
                 id: skiStatusLabl
                 level: 3
-                text: "Status: Installed"
+                text: skillInfo ? (typeof skillInfo.itemUpdateStatus !== "undefined" && skillInfo.itemUpdateStatus ? "Status: Update Available" : "Status: Installed") : ""
                 anchors.fill: parent
                 visible: skiStatusArea.visible
                 anchors.leftMargin: Kirigami.Units.smallSpacing
@@ -181,11 +188,15 @@ Popup {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
-                text: skillInfo.itemInstallStatus ? "Uninstall" : "Install"
+                text: skillInfo ? (skillInfo.itemUpdateStatus ? "Update" : (skillInfo.itemInstallStatus ? "Uninstall" : "Install")) : ""
             }
 
             onClicked: {
-                installerArea.initializeInstaller()
+                if(skillInfo.itemUpdateStatus){
+                    installerArea.initializeUpdater()
+                } else {
+                    installerArea.initializeInstaller()
+                }
             }
 
             Keys.onReturnPressed: {

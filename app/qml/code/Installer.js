@@ -4,11 +4,11 @@ function initInstallation(){
     console.log(informationModel.branch)
     if(lview.mfolderName !== ""){
         informationModel.hasOrginal = true
-        informationModel.skillFolderName = lview.mfolderName
+        informationModel.skillFolderName = lview.mfolderName.toLowerCase()
         console.log(informationModel.skillFolderName)
     } else {
         informationModel.hasOrginal = false
-        informationModel.skillFolderName = lview.mskillName + "." + lview.mauthorName
+        informationModel.skillFolderName = lview.mskillName.toLowerCase() + "." + lview.mauthorName.toLowerCase()
         console.log(informationModel.skillFolderName)
     }
 
@@ -211,7 +211,7 @@ function runSysDepInstallerTwo(){
     mainsession.hasFinished = false
     currentPos = ""
     console.log(informationModel.skillFolder)
-    var getinstallersarg2 = ["-c", "/tmp/systemDepsInstall.sh" + ' ' + informationModel.skillFolder]
+    var getinstallersarg2 = ["-c", "/tmp/systemDepsInstall.sh" + ' ' + String(informationModel.skillFolder).toLowerCase()]
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg2)
     mainsession.startShellProgram();
@@ -258,7 +258,7 @@ function runBranchInstallers(){
     installStep.text = "INFO - Running Branch Installer"
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "/tmp/brancher.sh" + ' ' + informationModel.skillFolder + ' ' + informationModel.branch]
+    var getinstallersarg = ["-c", "/tmp/brancher.sh" + ' ' + String(informationModel.skillFolder).toLowerCase() + ' ' + informationModel.branch]
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -312,7 +312,7 @@ function runDesktopFileInstallers(){
     pBar.value = 0.98
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "/tmp/desktopFileInstaller.sh" + ' ' + informationModel.skillFolder]
+    var getinstallersarg = ["-c", "/tmp/desktopFileInstaller.sh" + ' ' + String(informationModel.skillFolder).toLowerCase()]
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -424,4 +424,58 @@ function runRemover(){
     mainsession.startShellProgram();
     pBar.value = 1
     currentPos = "removerFinished"
+}
+
+function initUpdate(){
+    informationModel.skillUpdatePath = "/opt/mycroft/skills/" + lview.mskillName.toLowerCase() + "." + lview.mauthorName.toLowerCase()
+    mainInstallerDrawer.open()
+    clearUpdater();
+}
+
+function clearUpdater(){
+    pBar.value = 0.25
+    mainsession.hasFinished = false
+    currentPos = ""
+    var cleaninstallerfiles = ["-c", "rm -rf /tmp/updater.sh"]
+    mainsession.setShellProgram("bash");
+    mainsession.setArgs(cleaninstallerfiles)
+    mainsession.startShellProgram();
+    currentPos = "updaterCleared"
+}
+
+function getUpdater(){
+    installStep.text = "INFO - Getting Updater"
+    pBar.value = 0.5
+    mainsession.hasFinished = false
+    currentPos = ""
+    var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/updater.sh -P /tmp"]
+    mainsession.setShellProgram("bash");
+    mainsession.setArgs(getinstallersarg)
+    mainsession.startShellProgram();
+    currentPos = "updaterDownloaded"
+}
+
+function setUpdaterPermission(){
+    installStep.text = "INFO - Setting Updater Permissions"
+    pBar.value = 0.75
+    mainsession.hasFinished = false
+    currentPos = ""
+    var getinstallersarg = ["-c", "chmod a+x /tmp/updater.sh"]
+    mainsession.setShellProgram("bash");
+    mainsession.setArgs(getinstallersarg)
+    mainsession.startShellProgram();
+    currentPos = "updaterPermsSet"
+}
+
+function runUpdater(){
+    installStep.text = "INFO - Running Updater Process 1"
+    pBar.value = 0.9
+    mainsession.hasFinished = false
+    currentPos = ""
+    var getinstallersarg = ["-c", "/tmp/updater.sh" + ' ' + informationModel.skillUpdatePath]
+    mainsession.setShellProgram("bash");
+    mainsession.setArgs(getinstallersarg)
+    mainsession.startShellProgram();
+    pBar.value = 1
+    currentPos = "updaterFinished"
 }

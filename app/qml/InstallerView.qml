@@ -13,8 +13,8 @@ import org.kde.kirigami 2.12 as Kirigami
 import org.kde.plasma.components 3.0 as PlasmaComponents3
 import QMLTermWidget 1.0
 import SysInfo 1.0
-import QtQuick.XmlListModel 2.13
 import QtGraphicalEffects 1.0
+import InstallerListModel 1.0
 import "delegates" as Delegates
 
 import "code/SkillUtils.js" as SkillUtils
@@ -26,40 +26,73 @@ Kirigami.Page {
     property alias skillView: lview.view
     property bool lviewFirstItem: lview.view.currentIndex != 0 ? 1 : 0
 
-    function updateXMLModel(){
-        xmlModel.reload()
-        SkillUtils.getSkills()
-        if(sortModel.count <= 0) {
-            viewBusyIndicator.visible = true
-            viewBusyIndicator.running = true
-            viewBusyIndicator.enabled = true
-            viewBusyIndicatorLabel.text = "Loading Skills"
-        }
-        if(installerBox.opened){
-            installerBox.close()
-        }
-    }
-
     background: Rectangle {
         color: Qt.rgba(0,0,0,0.8)
     }
 
-    XmlListModel {
-        id: xmlModel
-        query: "/ocs/data/content"
-        XmlRole { name: "id"; query: "id/string()" }
-        XmlRole { name: "name"; query: "name/string()" }
-        XmlRole { name: "description"; query: "description/string()" }
-        XmlRole { name: "downloadlink1"; query: "downloadlink1/string()" }
-        XmlRole { name: "previewpic1"; query: "previewpic1/string()" }
-        XmlRole { name: "typename"; query: "typename/string()" }
-        XmlRole { name: "personid"; query: "personid/string()" }
-        XmlRole { name: "downloads"; query: "downloads/string()" }
+    function updateInstallerModel(){
+        modelInstaller.reloadJsonModel()
+    }
 
-        onStatusChanged: if(status === XmlListModel.Ready) {
-                             console.log("source changed")
-                             SkillUtils.fillListModel();
-                         }
+    Rectangle {
+        id: viewBusyOverlay
+        z: 300
+        anchors.fill: parent
+        visible: false
+        enabled: visible
+        color: Qt.rgba(0, 0, 0, 0.8)
+
+        PlasmaComponents3.BusyIndicator {
+            id: viewBusyIndicator
+            visible: viewBusyOverlay.visible
+            anchors.centerIn: parent
+            running: viewBusyOverlay.visible
+            enabled: viewBusyOverlay.visible
+
+            Label {
+                id: viewBusyIndicatorLabel
+                visible: viewBusyOverlay.visible
+                enabled: viewBusyOverlay.visible
+                anchors.top: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Loading Skills"
+            }
+        }
+    }
+
+    InstallerListModel {
+        id: modelInstaller
+        url: "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json"
+        query: "data"
+        roles: ["id", "name", "description", "downloadlink1", "previewpic1", "typename", "personid", "downloads", "itemInstallStatus", "itemUpdateStatus", "url", "branch", "warning", "desktopFile", "examples", "platforms", "systemDeps", "authorname", "skillname", "foldername"]
+
+        onDownloadingModelUpdated: {
+            if(modelInstaller.downloadingModel()){
+                viewBusyOverlay.visible = true
+                viewBusyIndicatorLabel.text = "Downloading Skills"
+            }
+        }
+
+        onCreatingModelUpdated: {
+            if(modelInstaller.creatingModel()){
+                viewBusyOverlay.visible = true
+                viewBusyIndicatorLabel.text = "Checking For Updates " + modelInstaller.updatingModelCounter() + "/" + modelInstaller.completeModelCounter()
+            }
+        }
+
+        onModelUpdated: {
+            console.log("Got Model Updated")
+            viewBusyOverlay.visible = false
+            viewBusyIndicatorLabel.text = ""
+            SkillUtils.fillListModel()
+        }
+
+        Component.onCompleted: {
+            if(modelInstaller.downloadingModel()){
+                viewBusyOverlay.visible = true
+                viewBusyIndicatorLabel.text = "Downloading Skills"
+            }
+        }
     }
 
     ColumnLayout {
@@ -103,7 +136,7 @@ Kirigami.Page {
                 indicator: Kirigami.Icon {
                     width: Kirigami.Units.iconSizes.small
                     height: Kirigami.Units.iconSizes.small
-                    x: 0//categorySelector.leftPadding //: categorySelector.width - width - categorySelector.rightPadding
+                    x: 0
                     y: categorySelector.topPadding + (categorySelector.availableHeight - height) / 2
                     source: categorySelector.popup.opened ? "arrow-up" : "arrow-down"
                 }
@@ -174,19 +207,25 @@ Kirigami.Page {
                 onCurrentIndexChanged: {
                     console.log(currentIndex)
                     if(currentIndex == 0){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100"
+                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json"
                     } else if(currentIndex == 1){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=609&pagesize=100"
+                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=609&pagesize=100&format=json"
                     } else if(currentIndex == 2){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=415&pagesize=100"
+                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=415&pagesize=100&format=json"
                     } else if(currentIndex == 3){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=610&pagesize=100"
+                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=610&pagesize=100&format=json"
                     } else if(currentIndex == 4){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=611&pagesize=100"
+                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=611&pagesize=100&format=json"
                     } else {
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100"
+                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json"
                     }
-                    SkillUtils.getSkills()
+
+                    if(informationModel.categoryURL != ""){
+                        if(modelInstaller.url != informationModel.categoryURL){
+                            modelInstaller.url = informationModel.categoryURL
+                        }
+                    }
+
                     lview.forceActiveFocus()
                 }
             }
@@ -213,6 +252,7 @@ Kirigami.Page {
                     sortModel.quick_sort()
                 }
             }
+
             PlasmaComponents3.Button {
                 id: sortByNameBtn
                 Layout.preferredWidth: parent.width * 0.10
@@ -220,7 +260,7 @@ Kirigami.Page {
                 text: "Sort By Name"
                 icon.name: "view-sort"
                 KeyNavigation.down: lview
-                KeyNavigation.right: sortByDefaultBtn
+                KeyNavigation.right: sortByInstalledBtn
                 KeyNavigation.left: sortByRatingBtn
 
                 Keys.onReturnPressed: {
@@ -233,6 +273,28 @@ Kirigami.Page {
                     sortModel.quick_sort()
                 }
             }
+
+            PlasmaComponents3.Button {
+                id: sortByInstalledBtn
+                Layout.preferredWidth: parent.width * 0.10
+                Layout.fillHeight: true
+                text: "Sort Installed"
+                icon.name: "view-sort"
+                KeyNavigation.down: lview
+                KeyNavigation.right: sortByDefaultBtn
+                KeyNavigation.left: sortByNameBtn
+
+                Keys.onReturnPressed: {
+                    clicked()
+                }
+
+                onClicked: {
+                    sortModel.sortColumnName = "itemInstallStatus"
+                    sortModel.order = "desc"
+                    sortModel.quick_sort()
+                }
+            }
+
             PlasmaComponents3.Button {
                 id: sortByDefaultBtn
                 Layout.preferredWidth: parent.width * 0.10
@@ -240,7 +302,7 @@ Kirigami.Page {
                 text: "Sort Default"
                 icon.name: "view-sort"
                 KeyNavigation.down: lview
-                KeyNavigation.left: sortByNameBtn
+                KeyNavigation.left: sortByInstalledBtn
 
                 Keys.onReturnPressed: {
                     clicked()
@@ -297,20 +359,6 @@ Kirigami.Page {
                 color: "transparent"
                 clip: true
 
-                PlasmaComponents3.BusyIndicator {
-                    id: viewBusyIndicator
-                    visible: true
-                    anchors.centerIn: parent
-                    running: true
-
-                    Label {
-                        id: viewBusyIndicatorLabel
-                        anchors.top: parent.bottom
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: "Loading Skills"
-                    }
-                }
-
                 SortFilterModel {
                     id: sortModel
                 }
@@ -352,14 +400,16 @@ Kirigami.Page {
                         installerBox.skillInfo = lview.currentItem.skillInfo
                         if(lview.currentItem.skillInfo){
                             mbranch = lview.currentItem.skillInfo.branch
-                            mfolderName = lview.currentItem.skillInfo.folderName
-                            mskillName = lview.currentItem.skillInfo.skillName
-                            mauthorName = lview.currentItem.skillInfo.authorName
+                            mfolderName = String(lview.currentItem.skillInfo.folderName).toLowerCase()
+                            mskillName = String(lview.currentItem.skillInfo.skillName).toLowerCase()
+                            mauthorName = String(lview.currentItem.skillInfo.authorName).toLowerCase()
                             mskillUrl = lview.currentItem.skillInfo.skillUrl
                             mskillFolderPath = lview.currentItem.skillInfo.skillFolderPath
                             mdesktopFile = lview.currentItem.skillInfo.desktopFile
                             mskillInstalled = lview.currentItem.skillInfo.skillInstalled
                             mSystemDeps = lview.currentItem.skillInfo.systemDeps
+
+                            console.log("Check Upper Case Issue " + mauthorName)
                         }
                     }
 

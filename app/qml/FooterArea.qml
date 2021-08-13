@@ -37,29 +37,16 @@ Item {
         anchors.bottom: parent.bottom
         color: "#211e1e"
 
-        PlasmaComponents3.Button {
+        Button {
             id: refreshButton
             anchors.fill: parent
-
-            contentItem: Item {
-                RowLayout {
-                    anchors.centerIn: parent
-                    Kirigami.Icon {
-                        Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                        Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                        Layout.alignment: Qt.AlignHCenter
-                        source: "refactor"
-                    }
-                    Label {
-                        text: "Refresh"
-                        Layout.alignment: Qt.AlignHCenter
-                    }
-                }
-            }
+            text: "Refresh"
+            icon.name: "refactor"
 
             onClicked: {
-                installerView.updateXMLModel()
+                installerView.updateInstallerModel()
             }
+
             KeyNavigation.up: installerView
             Keys.onReturnPressed: {
                 clicked()

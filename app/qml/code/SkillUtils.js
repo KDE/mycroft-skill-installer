@@ -11,83 +11,68 @@ function fillListModel()
 {
     sortModel.clear()
     var n;
-    for (n=0; n < xmlModel.count; n++) {
-        sortModel.append({"typename": xmlModel.get(n).typename, "name": xmlModel.get(n).name, "description": xmlModel.get(n).description, "downloadlink1": xmlModel.get(n).downloadlink1, "previewpic1": xmlModel.get(n).previewpic1, "personid": xmlModel.get(n).personid, "id": xmlModel.get(n).id, "downloads": xmlModel.get(n).downloads})
+    var systemDeps = false;
+    var skillPlatforms
+    var warning = ""
+    var examples
+    for (n=0; n < modelInstaller.rowCount(); n++) {
+
+        if (modelInstaller.get(n).systemDeps === true || modelInstaller.get(n).systemDeps === "true") {
+            systemDeps = true
+        } else if (modelInstaller.get(n).systemDeps === false || modelInstaller.get(n).systemDeps === "false") {
+            systemDeps = false
+        } else {
+            systemDeps = false
+        }
+
+        if (modelInstaller.get(n).platforms){
+            skillPlatforms = String(modelInstaller.get(n).platforms)
+        } else {
+            skillPlatforms = "all"
+        }
+
+        if (modelInstaller.get(n).warning){
+            warning = modelInstaller.get(n).warning
+        } else {
+            warning = ""
+        }
+
+        if (modelInstaller.get(n).examples){
+            examples = String(modelInstaller.get(n).examples)
+        } else {
+            examples = ""
+        }
+
+        sortModel.append({
+         "id": modelInstaller.get(n).id,
+         "name": modelInstaller.get(n).name,
+         "description": modelInstaller.get(n).description,
+         "downloadlink1": modelInstaller.get(n).downloadlink1,
+         "previewpic1": modelInstaller.get(n).previewpic1,
+         "typename": modelInstaller.get(n).typename,
+         "personid": modelInstaller.get(n).personid,
+         "downloads": modelInstaller.get(n).downloads,
+         "itemInstallStatus": modelInstaller.get(n).itemInstallStatus,
+         "itemUpdateStatus": modelInstaller.get(n).itemUpdateStatus,
+         "url": modelInstaller.get(n).url,
+         "branch": modelInstaller.get(n).branch,
+         "warning": warning,
+         "desktopFile": modelInstaller.get(n).desktopFile,
+         "examples": examples,
+         "platforms": skillPlatforms,
+         "systemDeps": systemDeps,
+         "authorname": modelInstaller.get(n).authorname,
+         "skillname": modelInstaller.get(n).skillname,
+         "foldername": modelInstaller.get(n).foldername
+       })
     }
 }
 
-function getSkills(){
-    var xhr = new XMLHttpRequest()
-    var url = informationModel.categoryURL //'https://api.kde-look.org/ocs/v1/content/data?categories=608' ;
-    xhr.open("GET",url,true);
-    xhr.setRequestHeader('Content-Type',  'application/xml');
-    xhr.send();
-    retryFetch = retryFetch + 1
-    xhr.onreadystatechange = function()
-    {
-        if ( xhr.readyState == xhr.DONE )
-        {
-            if ( xhr.status == 200 )
-            {
-                var a = xhr.responseXML.documentElement;
-                xmlModel.xml = xhr.responseText
-                viewBusyIndicator.running = false
-                viewBusyIndicator.visible = false
-                viewBusyIndicator.enabled = false
-                //lview.model = xmlModel
-            }
-            else
-            {
-                console.log("Timed Out Error")
-                if(retryFetch <= 3){
-                    console.log("Retrying Fetch!")
-                    getSkills()
-                } else {
-                    viewBusyIndicator.running = false
-                    viewBusyIndicatorLabel.text = "Error Fetching Skills"
-                }
-            }
-        }
-    }
-}
-
-function populateSkillInfo(jsonUrl){
-    var doc = new XMLHttpRequest()
-    doc.open("GET", jsonUrl, true);
-    doc.send();
-
-    doc.onreadystatechange = function() {
-        if (doc.readyState === XMLHttpRequest.DONE) {
-            var tempRes = doc.responseText
-            var checkModel = JSON.parse(tempRes)
-            var defaultFold = '/opt/mycroft/skills'
-            var skillObj = {}
-            var skillPlatforms = []
-            var skillAuthorName = checkModel.authorname.toLowerCase()
-            var systemDeps = false
-            var skillPath = defaultFold + "/" + checkModel.skillname + "." + skillAuthorName
-            if (checkModel.platforms){
-                skillPlatforms = checkModel.platforms
-            } else {
-                skillPlatforms = ["all"]
-            }
-
-            if (checkModel.systemDeps === true || checkModel.systemDeps === "true") {
-                systemDeps = true
-            } else if (checkModel.systemDeps === false || checkModel.systemDeps === "false") {
-                systemDeps = false
-            } else {
-                systemDeps = false
-            }
-
-            if(fileReader.file_exists_local(skillPath)){
-                skillObj = {itemDescription: description, itemPreviewPic: previewpic1, itemInstallStatus: true, displayName: checkModel.name, skillName: checkModel.skillname, authorName: skillAuthorName, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: true, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples, platforms: skillPlatforms, systemDeps: systemDeps}
-                skillInfo = skillObj
-            }
-            else {
-                skillObj = {itemDescription: description, itemPreviewPic: previewpic1, itemInstallStatus: false, displayName: checkModel.name, skillName: checkModel.skillname, authorName: skillAuthorName, folderName: checkModel.foldername, skillUrl: checkModel.url, skillInstalled: false, branch: checkModel.branch, skillFolderPath: skillPath, warning: checkModel.warning, desktopFile: checkModel.desktopFile, examples: checkModel.examples, platforms: skillPlatforms, systemDeps: systemDeps}
-                skillInfo = skillObj
-            }
-        }
-    }
+function populateSkillInfo()
+{
+    var defaultFold = '/opt/mycroft/skills'
+    var skillAuthorName = authorname.toLowerCase()
+    var skillPath = defaultFold + "/" + skillname + "." + personid
+    var skillObj = {"itemDescription": description, "itemPreviewPic": previewpic1, "itemInstallStatus": itemInstallStatus, "displayName": name, "skillName": skillname.toLowerCase(), "authorName": authorname.toLowerCase(), "folderName": foldername, "skillUrl": url, "skillInstalled": itemInstallStatus, "branch": branch, "skillFolderPath": skillPath, "warning": warning, "desktopFile": desktopFile, "examples": examples, "platforms": platforms, "systemDeps": systemDeps, "itemUpdateStatus": itemUpdateStatus}
+    skillInfo = skillObj
 }

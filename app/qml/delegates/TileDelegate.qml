@@ -171,6 +171,16 @@ BigScreen.AbstractDelegate {
                     Layout.alignment: Qt.AlignHCenter
                     text: "Installed"
                 }
+
+                Kirigami.Icon {
+                    visible: itemUpdateStatus
+                    enabled: visible
+                    source: "update-none"
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    Layout.preferredWidth: iconInstall.width
+                    Layout.preferredHeight: iconInstall.height
+                    color: Kirigami.Theme.highlightColor
+                }
             }
         }
     }
