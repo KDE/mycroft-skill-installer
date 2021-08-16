@@ -1,6 +1,5 @@
 [Desktop Entry]
 Name=MycroftSkillInstaller
-Name[en_GB]=MycroftSkillInstaller
 MimeType=@DesktopMimeType@
 Exec=@DesktopExec@
 Icon=download
