@@ -12,9 +12,11 @@
 #include <QEventLoop>
 #include "installerlistmodel.h"
 #include "processcommander.h"
+#include <QFile>
 
 InstallerListModel::InstallerListModel(QObject *parent) : QAbstractListModel(parent)
 {
+    setCategoryBrowser(0);
     m_blackList.append("1490534");
     m_blackList.append("1193621");
 }
@@ -48,33 +50,35 @@ QString InstallerListModel::url() const
 
 void InstallerListModel::setUrl(const QString &url)
 {
-    m_jsonList.clear();
-    while(m_combinedDoc.count()) {
-        m_combinedDoc.pop_back();
+    if(!url.isEmpty()) {
+        m_jsonList.clear();
+        while(m_combinedDoc.count()) {
+            m_combinedDoc.pop_back();
+        }
+        setDownloadingModel(true);
+        m_originalCount = 0;
+        QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+        QNetworkRequest request;
+        const QUrl qurl = url;
+        m_url = url;
+        request.setUrl(qurl);
+        QNetworkReply *reply = manager->get(request);
+        connect(reply, &QNetworkReply::finished, [this, reply, url] () {
+            QByteArray response_data = reply->readAll();
+            getSecondaryJson(response_data, url);
+            reply->close();
+        });
     }
-    setDownloadingModel(true);
-    m_originalCount = 0;
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkRequest request;
-    const QUrl qurl = url;
-    m_url = url;
-    request.setUrl(qurl);
-    QNetworkReply *reply = manager->get(request);
-    connect(reply, &QNetworkReply::finished, [this, reply] () {
-        QByteArray response_data = reply->readAll();
-        getSecondaryJson(response_data);
-        reply->close();
-    });
 }
 
-void InstallerListModel::getSecondaryJson(const QByteArray &data)
+void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString &url)
 {
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request;
     QJsonDocument json = QJsonDocument::fromJson(data);
     QJsonObject r = json.object();
     QJsonArray storeItems = r.value("data").toArray();
-    qDebug() << "Store Items Count Before Invalid" << storeItems.count();
+    //qDebug() << "Store Items Count Before Invalid" << storeItems.count();
     for(int s = 0; s < storeItems.count(); s++) {
         QJsonObject storeItem = storeItems[s].toObject();
         QString id = storeItem["id"].toString();
@@ -86,21 +90,78 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data)
             storeItems.removeAt(s);
         }
     }
-    qDebug() << "Store Items Count After Invalid" << storeItems.count();
+    //qDebug() << "Store Items Count After Invalid" << storeItems.count();
 
     m_originalCount = storeItems.count();
-    for(int i = 0; i < storeItems.count(); i++) {
-        QJsonObject storeItem = storeItems[i].toObject();
-        QString download_url = storeItem["downloadlink1"].toString();
-        QString json_response;
-        request.setUrl(download_url);
-        QNetworkReply *reply = manager->get(request);
-        connect(reply, &QNetworkReply::finished, [this, reply, storeItem] () {
-            QByteArray response_data = reply->readAll();
-            QJsonDocument json_second = QJsonDocument::fromJson(response_data);
-            buildJSONModel(storeItem, json_second);
-            reply->close();
-        });
+
+    QFile cacheFile(m_cacheDataPath);
+    int cacheItemCount = 0;
+    QJsonDocument d;
+
+    if (url == getCurrentCategory() && cacheFile.size() > 0) {
+        cacheFile.open(QFile::ReadOnly | QFile::Text);
+        QString val = cacheFile.readAll();
+        cacheFile.close();
+        d = QJsonDocument::fromJson(val.toUtf8());
+
+        QJsonObject r = d.object();
+        QJsonArray cacheItems = r.value("data").toArray();
+        cacheItemCount = cacheItems.count();
+    } else {
+        cacheItemCount = 0;
+        d = QJsonDocument::fromJson({});
+    }
+
+    if(cacheItemCount == m_originalCount){
+        QJsonObject z = d.object();
+        QJsonArray zItems = z.value("data").toArray();
+        QJsonArray updateCacheArray;
+
+        for(int i = 0; i < zItems.count(); i++){
+            QJsonObject eachCacheItem = zItems[i].toObject();
+            QString skillName = eachCacheItem["skillname"].toString().toLower();
+            QString skillAuthor = eachCacheItem["authorname"].toString().toLower();
+            QString skillUrl = eachCacheItem["url"].toString() + ".git";
+            QString skillBranch = eachCacheItem["branch"].toString();
+
+            QString defaultFolder = "/opt/mycroft/skills";
+            QString skillPath = defaultFolder + "/" + skillName + "." + skillAuthor;
+
+            bool zItems_installed = checkInstalled(skillName, skillAuthor);
+            eachCacheItem.remove("itemInstallStatus");
+            eachCacheItem.insert("itemInstallStatus", zItems_installed);
+            if (zItems_installed) {
+                bool zItems_update_available = checkUpdatesAvailable(skillUrl, skillBranch, skillPath);
+                eachCacheItem.remove("itemUpdateStatus");
+                eachCacheItem.insert("itemUpdateStatus", zItems_update_available);
+            }
+            updateCacheArray.append(eachCacheItem);
+        }
+
+        QJsonObject updatedCacheObject;
+        updatedCacheObject.insert("data", updateCacheArray);
+        QJsonDocument cacheDoc(updatedCacheObject);
+
+        QFile file(m_cacheDataPath);
+        file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
+        file.write(cacheDoc.toJson());
+        file.close();
+
+        setJson(cacheDoc.toJson());
+    } else {
+        for(int i = 0; i < storeItems.count(); i++) {
+            QJsonObject storeItem = storeItems[i].toObject();
+            QString download_url = storeItem["downloadlink1"].toString();
+            QString json_response;
+            request.setUrl(download_url);
+            QNetworkReply *reply = manager->get(request);
+            connect(reply, &QNetworkReply::finished, [this, reply, storeItem] () {
+                QByteArray response_data = reply->readAll();
+                QJsonDocument json_second = QJsonDocument::fromJson(response_data);
+                buildJSONModel(storeItem, json_second);
+                reply->close();
+            });
+        }
     }
     setDownloadingModel(false);
     m_reloadingModel = false;
@@ -138,7 +199,7 @@ void InstallerListModel::buildJSONModel(const QJsonObject json_one, const QJsonD
     QJsonObject cmdJson = QJsonObject::fromVariantMap(map);
     m_combinedDoc.append(cmdJson);
 
-    qDebug() << "Combining Json For " << skillName <<  m_combinedDoc.count();
+    //qDebug() << "Combining Json For " << skillName <<  m_combinedDoc.count();
     m_updatingCount = m_combinedDoc.count();
 
     if(m_combinedDoc.count() == m_originalCount){
@@ -147,6 +208,11 @@ void InstallerListModel::buildJSONModel(const QJsonObject json_one, const QJsonD
 
         QJsonDocument doc(recordObject);
 
+        QFile file(m_cacheDataPath);
+        file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
+        file.write(doc.toJson());
+        file.close();
+
         setJson(doc.toJson());
     }
     setCreatingModel(false);
@@ -154,7 +220,6 @@ void InstallerListModel::buildJSONModel(const QJsonObject json_one, const QJsonD
 
 void InstallerListModel::setJson(const QString &json)
 {
-    qDebug() << "Got new json file";
     m_json = json;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(m_json.toUtf8());
     QJsonObject jsonObj = jsonDoc.object();
@@ -270,4 +335,54 @@ int InstallerListModel::completeModelCounter()
 int InstallerListModel::updatingModelCounter()
 {
     return m_updatingCount;
+}
+
+void InstallerListModel::setCategoryBrowser(int category)
+{
+    switch (category) {
+    case 0:
+        m_categoryUrl = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json";
+        m_cacheDataFile = "/general.json" ;
+        m_cacheDataPath = "/opt/MycroftSkillInstaller/cache/" + m_cacheDataFile;
+        break;
+    case 1:
+        m_categoryUrl = "https://api.kde-look.org/ocs/v1/content/data?categories=609&pagesize=100&format=json";
+        m_cacheDataFile = "/configuration.json";
+        m_cacheDataPath = "/opt/MycroftSkillInstaller/cache/" + m_cacheDataFile;
+        break;
+    case 2:
+        m_categoryUrl = "https://api.kde-look.org/ocs/v1/content/data?categories=415&pagesize=100&format=json";
+        m_cacheDataFile = "/entertainment.json";
+        m_cacheDataPath = "/opt/MycroftSkillInstaller/cache/" + m_cacheDataFile;
+        break;
+    case 3:
+        m_categoryUrl = "https://api.kde-look.org/ocs/v1/content/data?categories=610&pagesize=100&format=json";
+        m_cacheDataFile = "/information.json";
+        m_cacheDataPath = "/opt/MycroftSkillInstaller/cache/" + m_cacheDataFile;
+        break;
+    case 4:
+        m_categoryUrl = "https://api.kde-look.org/ocs/v1/content/data?categories=611&pagesize=100&format=json";
+        m_cacheDataFile = "/productivity.json";
+        m_cacheDataPath = "/opt/MycroftSkillInstaller/cache/" + m_cacheDataFile;
+        break;
+    default:
+        m_categoryUrl = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json";
+        m_cacheDataFile = "/general.json";
+        m_cacheDataPath = "/opt/MycroftSkillInstaller/cache/" + m_cacheDataFile;
+        break;
+    }
+}
+
+QString InstallerListModel::getCurrentCategory()
+{
+    return m_categoryUrl;
+}
+
+void InstallerListModel::fetchLatestForCurrentModel()
+{
+    QFile file(m_cacheDataPath);
+    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
+    file.write("");
+    file.close();
+    reloadJsonModel();
 }

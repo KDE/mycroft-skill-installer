@@ -35,7 +35,7 @@ public:
     QStringList roles() const;
     void setRoles(const QStringList &roles);
 
-    void getSecondaryJson(const QByteArray &data);
+    void getSecondaryJson(const QByteArray &data, const QString &url);
     void buildJSONModel(const QJsonObject json_one, const QJsonDocument json_two);
 
     void setReloadModel();
@@ -54,6 +54,11 @@ public Q_SLOTS:
 
     int completeModelCounter();
     int updatingModelCounter();
+
+    void setCategoryBrowser(int category);
+    QString getCurrentCategory();
+
+    void fetchLatestForCurrentModel();
 
 Q_SIGNALS:
     void downloadingModelUpdated();
@@ -78,6 +83,11 @@ private:
     bool m_reloadingModel;
 
     int m_updatingCount;
+
+    QString m_categoryUrl;
+    QString m_cacheDataPath;
+    QString m_cacheDataFile;
+    int m_nonCacheCount;
 };
 
 #endif

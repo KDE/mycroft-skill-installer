@@ -34,6 +34,10 @@ Kirigami.Page {
         modelInstaller.reloadJsonModel()
     }
 
+    function fetchLatestInstallerModel(){
+        modelInstaller.fetchLatestForCurrentModel()
+    }
+
     Rectangle {
         id: viewBusyOverlay
         z: 300
@@ -62,7 +66,7 @@ Kirigami.Page {
 
     InstallerListModel {
         id: modelInstaller
-        url: "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json"
+        url: informationModel.categoryURL
         query: "data"
         roles: ["id", "name", "description", "downloadlink1", "previewpic1", "typename", "personid", "downloads", "itemInstallStatus", "itemUpdateStatus", "url", "branch", "warning", "desktopFile", "examples", "platforms", "systemDeps", "authorname", "skillname", "foldername"]
 
@@ -81,13 +85,13 @@ Kirigami.Page {
         }
 
         onModelUpdated: {
-            console.log("Got Model Updated")
             viewBusyOverlay.visible = false
             viewBusyIndicatorLabel.text = ""
             SkillUtils.fillListModel()
         }
 
         Component.onCompleted: {
+            informationModel.categoryURL = modelInstaller.getCurrentCategory()
             if(modelInstaller.downloadingModel()){
                 viewBusyOverlay.visible = true
                 viewBusyIndicatorLabel.text = "Downloading Skills"
@@ -105,11 +109,13 @@ Kirigami.Page {
             PlasmaComponents3.ComboBox {
                 id: categorySelector
                 displayText: "Category: " + currentText
-                Layout.preferredWidth: parent.width * 0.30
+                Layout.preferredWidth: parent.width * 0.20
                 Layout.fillHeight: true
                 model: [ "All Skills", "Configuration", "Entertainment", "Information", "Productivity" ]
                 leftPadding: Kirigami.Units.gridUnit
                 rightPadding: Kirigami.Units.gridUnit
+                currentIndex: 0
+
                 Keys.onDownPressed: {
                     lview.currentItem.forceActiveFocus()
                 }
@@ -205,24 +211,11 @@ Kirigami.Page {
                 }
 
                 onCurrentIndexChanged: {
-                    console.log(currentIndex)
-                    if(currentIndex == 0){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json"
-                    } else if(currentIndex == 1){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=609&pagesize=100&format=json"
-                    } else if(currentIndex == 2){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=415&pagesize=100&format=json"
-                    } else if(currentIndex == 3){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=610&pagesize=100&format=json"
-                    } else if(currentIndex == 4){
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=611&pagesize=100&format=json"
-                    } else {
-                        informationModel.categoryURL = "https://api.kde-look.org/ocs/v1/content/data?categories=608&pagesize=100&format=json"
-                    }
+                    modelInstaller.setCategoryBrowser(currentIndex)
 
                     if(informationModel.categoryURL != ""){
-                        if(modelInstaller.url != informationModel.categoryURL){
-                            modelInstaller.url = informationModel.categoryURL
+                        if(informationModel.categoryURL !== modelInstaller.getCurrentCategory()){
+                            informationModel.categoryURL = modelInstaller.getCurrentCategory()
                         }
                     }
 
@@ -235,7 +228,7 @@ Kirigami.Page {
             }
             PlasmaComponents3.Button {
                 id: sortByRatingBtn
-                Layout.preferredWidth: parent.width * 0.10
+                Layout.preferredWidth: parent.width * 0.14
                 Layout.fillHeight: true
                 text: "Sort By Rating"
                 icon.name: "view-sort"
@@ -255,7 +248,7 @@ Kirigami.Page {
 
             PlasmaComponents3.Button {
                 id: sortByNameBtn
-                Layout.preferredWidth: parent.width * 0.10
+                Layout.preferredWidth: parent.width * 0.14
                 Layout.fillHeight: true
                 text: "Sort By Name"
                 icon.name: "view-sort"
@@ -276,7 +269,7 @@ Kirigami.Page {
 
             PlasmaComponents3.Button {
                 id: sortByInstalledBtn
-                Layout.preferredWidth: parent.width * 0.10
+                Layout.preferredWidth: parent.width * 0.14
                 Layout.fillHeight: true
                 text: "Sort Installed"
                 icon.name: "view-sort"
@@ -297,7 +290,7 @@ Kirigami.Page {
 
             PlasmaComponents3.Button {
                 id: sortByDefaultBtn
-                Layout.preferredWidth: parent.width * 0.10
+                Layout.preferredWidth: parent.width * 0.14
                 Layout.fillHeight: true
                 text: "Sort Default"
                 icon.name: "view-sort"

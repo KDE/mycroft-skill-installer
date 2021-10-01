@@ -28,9 +28,15 @@ find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS
     QuickControls2
 )
 
-
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED 
     Kirigami2
 )
 
 add_subdirectory(app)
+
+install(
+    DIRECTORY preload/
+    DESTINATION /opt/MycroftSkillInstaller/cache/
+    PATTERN "*.json"
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ WORLD_WRITE
+)

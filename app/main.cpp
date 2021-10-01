@@ -23,7 +23,7 @@ static QObject *sysinfo_singleton(QQmlEngine *engine, QJSEngine *scriptEngine)
 }
 
 int main(int argc, char *argv[])
-{
+{ 
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon("qrc:mycroft-plasma-appicon.png"));
