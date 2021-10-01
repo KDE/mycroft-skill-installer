@@ -14,48 +14,6 @@ import org.kde.plasma.components 3.0 as PlasmaComponents3
 
 import "code/SkillUtils.js" as SkillUtils
 
-//Item {
-//    anchors.left: parent.left
-//    anchors.right: parent.right
-//    height: Kirigami.Units.gridUnit * 2.4
-
-//    onFocusChanged: {
-//        if(focus){
-//            refreshButton.forceActiveFocus()
-//        }
-//    }
-
-//    Kirigami.Separator {
-//        id: footerSeparator
-//        anchors.left: parent.left
-//        anchors.right: parent.right
-//    }
-
-//    Rectangle {
-//        anchors.top: footerSeparator.bottom
-//        anchors.left: parent.left
-//        anchors.right: parent.right
-//        anchors.bottom: parent.bottom
-//        color: "#211e1e"
-
-//        Button {
-//            id: refreshButton
-//            anchors.fill: parent
-//            text: "Refresh"
-//            icon.name: "refactor"
-
-//            onClicked: {
-//                installerView.updateInstallerModel()
-//            }
-
-//            KeyNavigation.up: installerView
-//            Keys.onReturnPressed: {
-//                clicked()
-//            }
-//        }
-//    }
-//}
-
 Rectangle {
     anchors.left: parent.left
     anchors.right: parent.right
