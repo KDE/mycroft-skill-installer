@@ -3,6 +3,7 @@ Name=MycroftSkillInstaller
 Name[ca]=MycroftSkillInstaller
 Name[ca@valencia]=MycroftSkillInstaller
 Name[cs]=MycroftSkillInstaller
+Name[de]=MycroftSkillInstaller
 Name[en_GB]=MycroftSkillInstaller
 Name[es]=MycroftSkillInstaller
 Name[eu]=MycroftSkillInstaller
