@@ -7,6 +7,7 @@
 import QtQuick 2.9
 import org.kde.kirigami 2.12 as Kirigami
 import org.kde.plasma.components 2.0 as PlasmaComponents
+import GlobalConfiguration 1.0
 
 Item {
     property var currentURL
@@ -24,5 +25,11 @@ Item {
     property string categoryURL
     property var jlist: []
     property var fntSize: Kirigami.Units.gridUnit * 2
+    property var backendType: GlobalConfiguration.backendConfig
+
+    onBackendTypeChanged: {
+        console.log("Backend type changed to: " + backendType)
+    }
+
     signal skillModelChanged
 }

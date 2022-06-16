@@ -5,6 +5,7 @@ add_executable(MycroftSkillInstaller ${mycroft_skill_installer_SRCS}
     sysinfo.cpp
     installerlistmodel.cpp
     processcommander.cpp
+    globalconfiguration.cpp
 )
 
 target_link_libraries(MycroftSkillInstaller 
@@ -14,6 +15,8 @@ target_link_libraries(MycroftSkillInstaller
     Qt5::Qml
     Qt5::QuickControls2
     KF5::Kirigami2
+    KF5::GuiAddons
+    KF5::ConfigWidgets
 )
 
 install(TARGETS MycroftSkillInstaller ${INSTALL_TARGETS_DEFAULT_ARGS})

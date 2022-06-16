@@ -12,7 +12,8 @@
 ProcessCommand::ProcessCommand(QObject *parent)
     : QObject(parent),
       ExecRemoteCmd(new QProcess(this)),
-      ExecLocalCmd(new QProcess(this))
+      ExecLocalCmd(new QProcess(this)),
+      ExecSafeList(new QProcess(this))
 {
     connect(&ExecRemoteCmd, SIGNAL(readyReadStandardOutput()), this, SLOT(readFromStdOutRemote()));
     connect(&ExecLocalCmd, SIGNAL(readyReadStandardOutput()), this, SLOT(readFromStdOutLocal()));
@@ -29,6 +30,7 @@ void ProcessCommand::processLocalGit(const QString skillpath)
 {
     QString args_url = skillpath + "/";
     ExecLocalCmd.setWorkingDirectory(args_url);
+    ExecSafeList.startDetached("git", {"config", "--global", "--add", "safe.directory", args_url});
     ExecLocalCmd.start("git", {"rev-parse", "HEAD"});
 }
 
@@ -38,7 +40,6 @@ void ProcessCommand::readFromStdOutRemote()
     QVariant output = result;
     if(output.toString().contains("\t")){
         QStringList qoutput = output.toString().split("\t");
-        //       qDebug() << "remote" << qoutput[0];
         m_commitIdRemote = qoutput[0];
         if(m_commitIdRemote != ""){
             emit processCommandResultCompleted();

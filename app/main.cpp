@@ -13,6 +13,7 @@
 #include "filereader.h"
 #include "sysinfo.h"
 #include "installerlistmodel.h"
+#include "globalconfiguration.h"
 
 static QObject *sysinfo_singleton(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
@@ -20,6 +21,14 @@ static QObject *sysinfo_singleton(QQmlEngine *engine, QJSEngine *scriptEngine)
     Q_UNUSED(scriptEngine)
 
     return new SysInfo;
+}
+
+static QObject *globalconfiguration_singleton(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    return new GlobalConfiguration;
 }
 
 int main(int argc, char *argv[])
@@ -30,6 +39,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<FileReader>("FileReader", 1, 0, "FileReader");
     qmlRegisterType<InstallerListModel>("InstallerListModel", 1, 0, "InstallerListModel");
     qmlRegisterSingletonType<SysInfo>("SysInfo", 1, 0, "SysInfo", sysinfo_singleton);
+    qmlRegisterSingletonType<GlobalConfiguration>("GlobalConfiguration", 1, 0, "GlobalConfiguration", globalconfiguration_singleton);
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));

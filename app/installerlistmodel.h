@@ -11,6 +11,7 @@
 #include <QJsonArray>
 #include "filereader.h"
 #include "processcommander.h"
+#include "globalconfiguration.h"
 
 class InstallerListModel : public QAbstractListModel
 {
@@ -22,9 +23,9 @@ class InstallerListModel : public QAbstractListModel
 
 public:
     explicit InstallerListModel(QObject *parent = 0);
-    int rowCount(const QModelIndex &parent) const;
-    QHash<int, QByteArray> roleNames() const;
-    QVariant data(const QModelIndex &index, int role) const;
+    int rowCount(const QModelIndex &parent) const override;
+    QHash<int, QByteArray> roleNames() const override;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     QString url() const;
     void setUrl(const QString &url);
@@ -88,6 +89,10 @@ private:
     QString m_cacheDataPath;
     QString m_cacheDataFile;
     int m_nonCacheCount;
+
+    GlobalConfiguration *m_globalConfiguration;
+    QString m_selectedBackendType;
+    QString m_selectedBackendXdgSupport;
 };
 
 #endif

@@ -1,6 +1,6 @@
 project(mycroft-skill-installer)
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.16.00)
 set(QT_MIN_VERSION "5.9.0")
 set(KF5_MIN_VERSION "5.10.0")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -30,6 +30,10 @@ find_package(Qt5 ${QT_MIN_VERSION} REQUIRED COMPONENTS
 
 find_package(KF5 ${KF5_MIN_VERSION} REQUIRED 
     Kirigami2
+    GuiAddons
+    CoreAddons
+    Config
+    ConfigWidgets
 )
 
 add_subdirectory(app)

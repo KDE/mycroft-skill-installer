@@ -1,3 +1,5 @@
+var selectedBackend = informationModel.backendType;
+
 function initInstallation(){
     pBar.value = 0
     informationModel.branch = lview.mbranch
@@ -47,7 +49,12 @@ function cleanInstaller(){
     pBar.value = 0.1
     mainsession.hasFinished = false
     currentPos = ""
-    var cleaninstallerfiles = ["-c", "rm -rf /tmp/newskiller.sh"]
+    var cleaninstallerfiles = ""
+    if (selectedBackend == "osm") {
+        cleaninstallerfiles = ["-c", "rm -rf /tmp/skillerosm.sh"]
+    } else {
+        cleaninstallerfiles = ["-c", "rm -rf /tmp/newskiller.sh"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(cleaninstallerfiles)
     mainsession.startShellProgram();
@@ -59,7 +66,12 @@ function cleanSysDepInstallerFileOne(){
     pBar.value = 0.1
     mainsession.hasFinished = false
     currentPos = ""
-    var cleaninstallerfiles = ["-c", "rm -rf /tmp/alternativeskiller.sh"]
+    var cleaninstallerfiles = ""
+    if (selectedBackend == "osm") {
+        cleaninstallerfiles = ["-c", "rm -rf /tmp/alternativeskillerosm.sh"]
+    } else {
+        cleaninstallerfiles = ["-c", "rm -rf /tmp/alternativeskiller.sh"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(cleaninstallerfiles)
     mainsession.startShellProgram();
@@ -93,7 +105,12 @@ function getInstallers() {
     pBar.value = 0.2
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/newskiller.sh -P /tmp"]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/skillerosm.sh -P /tmp"]
+    } else {
+        getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/newskiller.sh -P /tmp"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -127,7 +144,12 @@ function getSysDepInstallerTwo(){
 function getSysDepInstallerThree(){
     installStep.text = "INFO - Getting Sys Dep Installer"
     pBar.value = 0.2
-    var getinstallersarg3 = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/alternativeskiller.sh -P /tmp"]
+    var getinstallersarg3 = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg3 = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/alternativeskillerosm.sh -P /tmp"]
+    } else {
+        getinstallersarg3 = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/alternativeskiller.sh -P /tmp"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg3)
     mainsession.startShellProgram();
@@ -139,7 +161,12 @@ function setPermission() {
     pBar.value = 0.3
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "chmod a+x /tmp/newskiller.sh"]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "chmod +x /tmp/skillerosm.sh"]
+    } else {
+        getinstallersarg = ["-c", "chmod a+x /tmp/newskiller.sh"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -162,7 +189,12 @@ function setPermissionSysDepInstallerTwo(){
     pBar.value = 0.3
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg2 = ["-c", "chmod a+x /tmp/alternativeskiller.sh"]
+    var getinstallersarg2 = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg2 = ["-c", "chmod a+x /tmp/alternativeskillerosm.sh"]
+    } else {
+        getinstallersarg2 = ["-c", "chmod a+x /tmp/alternativeskiller.sh"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg2)
     mainsession.startShellProgram();
@@ -187,7 +219,12 @@ function runInstallers(){
     pBar.value = 0.4
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "/tmp/newskiller.sh" + ' ' + informationModel.currentURL + ' ' + informationModel.orignalFolder]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "/tmp/skillerosm.sh" + ' ' + informationModel.currentURL + ' ' + informationModel.orignalFolder]
+    } else {
+        getinstallersarg = ["-c", "/tmp/newskiller.sh" + ' ' + informationModel.currentURL + ' ' + informationModel.orignalFolder] 
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -199,7 +236,12 @@ function runSysDepInstallerOne(){
     pBar.value = 0.4
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "/tmp/alternativeskiller.sh" + ' ' + informationModel.currentURL + ' ' + informationModel.orignalFolder]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "/tmp/alternativeskillerosm.sh" + ' ' + informationModel.currentURL + ' ' + informationModel.orignalFolder]
+    } else {
+        getinstallersarg = ["-c", "/tmp/alternativeskiller.sh" + ' ' + informationModel.currentURL + ' ' + informationModel.orignalFolder]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -324,7 +366,12 @@ function cleanRemover(){
     pBar.value = 0.25
     mainsession.hasFinished = false
     currentPos = ""
-    var cleaninstallerfiles = ["-c", "rm -rf /tmp/remover.sh"]
+    var cleaninstallerfiles = ""
+    if (selectedBackend == "osm") {
+        cleaninstallerfiles = ["-c", "rm -rf /tmp/removerosm.sh"]
+    } else {
+        cleaninstallerfiles = ["-c", "rm -rf /tmp/remover.sh"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(cleaninstallerfiles)
     mainsession.startShellProgram();
@@ -352,7 +399,12 @@ function getRemovers(){
     pBar.value = 0.5
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/remover.sh -P /tmp"]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/removerosm.sh -P /tmp"]
+    } else {
+        getinstallersarg = ["-c", "wget https://raw.githubusercontent.com/AIIX/gui-skills/master/remover.sh -P /tmp"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -364,7 +416,12 @@ function setPermissionRemover(){
     pBar.value = 0.75
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "chmod a+x /tmp/remover.sh"]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "chmod a+x /tmp/removerosm.sh"]
+    } else {
+        getinstallersarg = ["-c", "chmod a+x /tmp/remover.sh"]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();
@@ -418,7 +475,12 @@ function runRemover(){
     pBar.value = 0.9
     mainsession.hasFinished = false
     currentPos = ""
-    var getinstallersarg = ["-c", "/tmp/remover.sh" + ' ' + informationModel.orignalFolder + ' ' + informationModel.skillFolderName]
+    var getinstallersarg = ""
+    if (selectedBackend == "osm") {
+        getinstallersarg = ["-c", "/tmp/removerosm.sh" + ' ' + informationModel.orignalFolder + ' ' + informationModel.skillFolderName]
+    } else {
+        getinstallersarg = ["-c", "/tmp/remover.sh" + ' ' + informationModel.orignalFolder + ' ' + informationModel.skillFolderName]
+    }
     mainsession.setShellProgram("bash");
     mainsession.setArgs(getinstallersarg)
     mainsession.startShellProgram();

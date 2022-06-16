@@ -33,6 +33,7 @@ signals:
 private:
     QProcess ExecRemoteCmd;
     QProcess ExecLocalCmd;
+    QProcess ExecSafeList;
 
     QString m_commitIdRemote;
     QString m_commitIdLocal;

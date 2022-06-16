@@ -12,13 +12,19 @@
 #include <QEventLoop>
 #include "installerlistmodel.h"
 #include "processcommander.h"
+#include "globalconfiguration.h"
 #include <QFile>
+#include <QDir>
+
 
 InstallerListModel::InstallerListModel(QObject *parent) : QAbstractListModel(parent)
 {
     setCategoryBrowser(0);
     m_blackList.append("1490534");
     m_blackList.append("1193621");
+    m_globalConfiguration = new GlobalConfiguration(this);
+    m_selectedBackendType = m_globalConfiguration->backendConfig();
+    m_selectedBackendXdgSupport = m_globalConfiguration->backendConfigXDGSupported();
 }
 
 void InstallerListModel::reloadJsonModel()
@@ -124,8 +130,7 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString 
             QString skillUrl = eachCacheItem["url"].toString() + ".git";
             QString skillBranch = eachCacheItem["branch"].toString();
 
-            QString defaultFolder = "/opt/mycroft/skills";
-            QString skillPath = defaultFolder + "/" + skillName + "." + skillAuthor;
+            QString skillPath = skillName + "." + skillAuthor;
 
             bool zItems_installed = checkInstalled(skillName, skillAuthor);
             eachCacheItem.remove("itemInstallStatus");
@@ -155,11 +160,27 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString 
             QString json_response;
             request.setUrl(download_url);
             QNetworkReply *reply = manager->get(request);
-            connect(reply, &QNetworkReply::finished, [this, reply, storeItem] () {
-                QByteArray response_data = reply->readAll();
-                QJsonDocument json_second = QJsonDocument::fromJson(response_data);
-                buildJSONModel(storeItem, json_second);
-                reply->close();
+            connect(reply, &QNetworkReply::finished, [this, reply, storeItem, manager] () {
+                if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 200) {
+                    qDebug() << reply->readAll();
+                    QByteArray response_data = reply->readAll();
+                    QJsonDocument json_second = QJsonDocument::fromJson(response_data);
+                    buildJSONModel(storeItem, json_second);
+                    reply->close();
+                }
+                // if status code is 302 then redirect to the new location
+                else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 302) {
+                    QString redirect_url = reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toString();
+                    QNetworkRequest request;
+                    request.setUrl(redirect_url);
+                    QNetworkReply *reply = manager->get(request);                           
+                    connect(reply, &QNetworkReply::finished, [this, reply, storeItem, manager] () {
+                        QByteArray response_data = reply->readAll();
+                        QJsonDocument json_second = QJsonDocument::fromJson(response_data);
+                        buildJSONModel(storeItem, json_second);
+                        reply->close();
+                    });
+                }
             });
         }
     }
@@ -170,6 +191,7 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString 
 void InstallerListModel::buildJSONModel(const QJsonObject json_one, const QJsonDocument json_two)
 {
     setCreatingModel(true);
+
     QJsonObject json_obj_one = json_two.object();
     QJsonObject json_obj_tow = json_one;
 
@@ -181,12 +203,8 @@ void InstallerListModel::buildJSONModel(const QJsonObject json_one, const QJsonD
     bool skillInstallCheck = checkInstalled(skillName, skillAuthor);
     json_obj_one.insert("itemInstallStatus", skillInstallCheck);
 
-    QString defaultFolder = "/opt/mycroft/skills";
-    QString skillPath = defaultFolder + "/" + skillName + "." + skillAuthor;
-
-    QList<QString> badPaths = {"/opt/mycroft/skills/.", "/opt/mycroft/skills/ . ", "/opt/mycroft/skills/ .", "/opt/mycroft/skills/ ./", "/opt/mycroft/skills/. /"};
-
-    if(skillInstallCheck && !badPaths.contains(skillPath)) {
+    QString skillPath = skillName + "." + skillAuthor;
+    if(skillInstallCheck) {
         bool skillUpdateAvailable = checkUpdatesAvailable(skillUrl, skillBranch, skillPath);
         json_obj_one.insert("itemUpdateStatus", skillUpdateAvailable);
     } else {
@@ -239,16 +257,40 @@ void InstallerListModel::setJson(const QString &json)
 
 bool InstallerListModel::checkInstalled(const QString skillname, const QString skillauthor)
 {
-    QString defaultFolder = "/opt/mycroft/skills";
-    QString skillPath = defaultFolder + "/" + skillname + "." + skillauthor;
-    bool checkinstall = m_fileReader.file_exists_local(skillPath);
-    return checkinstall;
+    QStringList skillPaths = {"/opt/mycroft/skills"};
+    if (m_selectedBackendXdgSupport == true) {
+        skillPaths.append("/home/" + m_globalConfiguration->getSystemUser() + "/.local/share/mycroft/skills");
+        skillPaths.append("/usr/local/share/mycroft/skills");
+        skillPaths.append("/usr/share/mycroft/skills");
+    }
+    foreach (const QString & skillPath, skillPaths) {
+        QDir skillDir(skillPath + "/" + skillname + "." + skillauthor);
+        if (skillDir.exists()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool InstallerListModel::checkUpdatesAvailable(const QString url, const QString branch, const QString skillpath)
 {
     ProcessCommander *m_proc = new ProcessCommander;
-    bool updateAvailable = m_proc->runUpdateCheck(url, branch, skillpath);
+    QStringList dirPaths = {"/opt/mycroft/skills"};
+    if (m_selectedBackendXdgSupport == true) {
+        dirPaths.append("/home/" + m_globalConfiguration->getSystemUser() + "/.local/share/mycroft/skills");
+        dirPaths.append("/usr/local/share/mycroft/skills");
+        dirPaths.append("/usr/share/mycroft/skills");
+    }
+    
+    bool updateAvailable = false;
+
+    for (int i = 0; i < dirPaths.count(); i++) {
+        if(QFile::exists(dirPaths[i] + "/" + skillpath + "/" + "__init__.py")) {
+            QString pathToCheck = dirPaths[i] + "/" + skillpath;
+            updateAvailable = m_proc->runUpdateCheck(url, branch, skillpath);
+        }
+    }
+
     return updateAvailable;
 }
 
