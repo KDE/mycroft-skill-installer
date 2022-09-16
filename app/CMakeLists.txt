@@ -19,10 +19,10 @@ target_link_libraries(MycroftSkillInstaller
     KF5::ConfigWidgets
 )
 
-install(TARGETS MycroftSkillInstaller ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS MycroftSkillInstaller ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 
 set(DesktopNoDisplay "false")
 set(DesktopMimeType "application/vnd.debian.binary-package;application/x-rpm;")
 set(DesktopExec "MycroftSkillInstaller %F")
 configure_file(org.mycroft.skill.installer.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/org.mycroft.skill.installer.desktop)
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/org.mycroft.skill.installer.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/org.mycroft.skill.installer.desktop DESTINATION ${KDE_INSTALL_APPDIR})
