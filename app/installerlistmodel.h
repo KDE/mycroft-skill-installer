@@ -92,7 +92,7 @@ private:
 
     GlobalConfiguration *m_globalConfiguration;
     QString m_selectedBackendType;
-    QString m_selectedBackendXdgSupport;
+    bool m_selectedBackendXdgSupport;
 };
 
 #endif

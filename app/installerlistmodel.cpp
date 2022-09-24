@@ -258,7 +258,7 @@ void InstallerListModel::setJson(const QString &json)
 bool InstallerListModel::checkInstalled(const QString skillname, const QString skillauthor)
 {
     QStringList skillPaths = {"/opt/mycroft/skills"};
-    if (m_selectedBackendXdgSupport == true) {
+    if (m_selectedBackendXdgSupport) {
         skillPaths.append("/home/" + m_globalConfiguration->getSystemUser() + "/.local/share/mycroft/skills");
         skillPaths.append("/usr/local/share/mycroft/skills");
         skillPaths.append("/usr/share/mycroft/skills");
@@ -276,7 +276,7 @@ bool InstallerListModel::checkUpdatesAvailable(const QString url, const QString 
 {
     ProcessCommander *m_proc = new ProcessCommander;
     QStringList dirPaths = {"/opt/mycroft/skills"};
-    if (m_selectedBackendXdgSupport == true) {
+    if (m_selectedBackendXdgSupport) {
         dirPaths.append("/home/" + m_globalConfiguration->getSystemUser() + "/.local/share/mycroft/skills");
         dirPaths.append("/usr/local/share/mycroft/skills");
         dirPaths.append("/usr/share/mycroft/skills");
