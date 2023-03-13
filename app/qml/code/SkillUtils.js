@@ -68,9 +68,13 @@ function fillListModel()
     }
 }
 
-function populateSkillInfo()
+function populateSkillInfo(backend, user)
 {
-    var defaultFold = '/opt/mycroft/skills'
+    if(backend == "osm") {
+        var defaultFold = '/home/' + user + '/.local/share/mycroft/skills'
+    } else {
+        var defaultFold = '/opt/mycroft/skills'
+    }
     var skillAuthorName = authorname.toLowerCase()
     var skillPath = defaultFold + "/" + skillname + "." + personid
     var skillObj = {"itemDescription": description, "itemPreviewPic": previewpic1, "itemInstallStatus": itemInstallStatus, "displayName": name, "skillName": skillname.toLowerCase(), "authorName": authorname.toLowerCase(), "folderName": foldername, "skillUrl": url, "skillInstalled": itemInstallStatus, "branch": branch, "skillFolderPath": skillPath, "warning": warning, "desktopFile": desktopFile, "examples": examples, "platforms": platforms, "systemDeps": systemDeps, "itemUpdateStatus": itemUpdateStatus}

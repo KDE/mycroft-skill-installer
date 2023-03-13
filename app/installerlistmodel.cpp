@@ -84,7 +84,7 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString 
     QJsonDocument json = QJsonDocument::fromJson(data);
     QJsonObject r = json.object();
     QJsonArray storeItems = r.value("data").toArray();
-    //qDebug() << "Store Items Count Before Invalid" << storeItems.count();
+    // qDebug() << "Store Items Count Before Invalid" << storeItems.count();
     for(int s = 0; s < storeItems.count(); s++) {
         QJsonObject storeItem = storeItems[s].toObject();
         QString id = storeItem["id"].toString();
@@ -96,7 +96,7 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString 
             storeItems.removeAt(s);
         }
     }
-    //qDebug() << "Store Items Count After Invalid" << storeItems.count();
+    // qDebug() << "Store Items Count After Invalid" << storeItems.count();
 
     m_originalCount = storeItems.count();
 
@@ -162,7 +162,6 @@ void InstallerListModel::getSecondaryJson(const QByteArray &data, const QString 
             QNetworkReply *reply = manager->get(request);
             connect(reply, &QNetworkReply::finished, [this, reply, storeItem, manager] () {
                 if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 200) {
-                    qDebug() << reply->readAll();
                     QByteArray response_data = reply->readAll();
                     QJsonDocument json_second = QJsonDocument::fromJson(response_data);
                     buildJSONModel(storeItem, json_second);
@@ -217,7 +216,7 @@ void InstallerListModel::buildJSONModel(const QJsonObject json_one, const QJsonD
     QJsonObject cmdJson = QJsonObject::fromVariantMap(map);
     m_combinedDoc.append(cmdJson);
 
-    //qDebug() << "Combining Json For " << skillName <<  m_combinedDoc.count();
+    // qDebug() << "Combining Json For " << skillName <<  m_combinedDoc.count();
     m_updatingCount = m_combinedDoc.count();
 
     if(m_combinedDoc.count() == m_originalCount){

@@ -12,6 +12,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.kirigami 2.12 as Kirigami
 import QtGraphicalEffects 1.0
 import org.kde.mycroft.bigscreen 1.0 as BigScreen
+import GlobalConfiguration 1.0
 import SysInfo 1.0
 
 import "../code/SkillUtils.js" as SkillUtils
@@ -24,6 +25,8 @@ BigScreen.AbstractDelegate {
 
     property var skillInfo
     property bool delDisbaled: false
+    property var backendType: GlobalConfiguration.backendConfig
+    property var systemUser: GlobalConfiguration.getSystemUser()
 
     onClicked: {
         if(!delDisbaled){
@@ -41,7 +44,7 @@ BigScreen.AbstractDelegate {
         if (downloadlink1.substring(downloadlink1.lastIndexOf('/') + 1) != "skill.json"){
             delegate.delDisbaled = true;
         } else {
-            SkillUtils.populateSkillInfo(downloadlink1)
+            SkillUtils.populateSkillInfo(backendType, systemUser)
         }
     }
 

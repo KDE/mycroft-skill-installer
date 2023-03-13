@@ -5,9 +5,10 @@
  */
 
 #include "processcommander.h"
-#include <QDebug>
+#include <QVariant>
 #include <QTextCodec>
 #include <QEventLoop>
+#include <QTimer>
 
 ProcessCommand::ProcessCommand(QObject *parent)
     : QObject(parent),
@@ -22,8 +23,10 @@ ProcessCommand::ProcessCommand(QObject *parent)
 void ProcessCommand::processRemoteGit(const QString url, const QString branch)
 {
     QString args_url = "grep";
+    if(ExecRemoteCmd.state() == QProcess::Running){
+        ExecRemoteCmd.kill();
+    }
     ExecRemoteCmd.start("git", {"ls-remote", url, "|", args_url, branch, "|", "cut", "-f", "1"});
-    //qDebug() << url << branch;
 }
 
 void ProcessCommand::processLocalGit(const QString skillpath)
@@ -31,6 +34,9 @@ void ProcessCommand::processLocalGit(const QString skillpath)
     QString args_url = skillpath + "/";
     ExecLocalCmd.setWorkingDirectory(args_url);
     ExecSafeList.startDetached("git", {"config", "--global", "--add", "safe.directory", args_url});
+    if(ExecLocalCmd.state() == QProcess::Running){
+        ExecLocalCmd.kill();
+    }
     ExecLocalCmd.start("git", {"rev-parse", "HEAD"});
 }
 
@@ -56,7 +62,6 @@ void ProcessCommand::readFromStdOutLocal()
     if(output.toString().contains("\n")){
         QStringList qoutput = output.toString().split("\n");
         m_commitIdLocal = qoutput[0];
-        //qDebug() << "local" << qoutput[0];
     } else {
         emit processCommandResultCompleted();
     }
@@ -87,11 +92,11 @@ bool ProcessCommander::runUpdateCheck(const QString url, const QString branch, c
     loop.connect(&m_processCommand, SIGNAL(processCommandResultCompleted()), SLOT(quit()));
     emit processRemoteGit(url, branch);
     emit processLocalGit(skillpath);
+    QTimer::singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
     QString remoteId = m_processCommand.getRemoteCommitId();
     QString localId = m_processCommand.getLocalCommitId();
     bool result = compareCommits(remoteId, localId);
-    //qDebug() << "Returning Result For " << url << result;
     return result;
 }
 
