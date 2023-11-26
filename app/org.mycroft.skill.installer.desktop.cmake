@@ -95,4 +95,4 @@ Keywords[sv]=program;programvara;mycroft;AI;färdigheter;automation;
 Keywords[tr]=program;yazılım;mycroft;yapay zeka;yetenekler;otomasyon;
 Keywords[uk]=program;software;mycroft;Ai;skills;automation;програма;майкрофт;ші;можливості;здібності;навички;
 Keywords[x-test]=xxprogramxx;xxsoftwarexx;xxmycroftxx;xxAixx;xxskillsxx;xxautomationxx;
-Keywords[zh_CN]=program;software;mycroft;Ai;skills;automation;程序;软件;人工智能;技能;能力;功能;自动化;
+Keywords[zh_CN]=program;software;mycroft;Ai;skills;automation;程序;软件;应用;人工智能;技能;能力;功能;自动化;chengxu;ruanjian;yingyong;rengongzhineng;jineng;nengli;gongneng;zidonghua;
